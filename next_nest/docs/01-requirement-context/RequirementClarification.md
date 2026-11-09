@@ -134,7 +134,7 @@ Phát sinh sau khi đổi bài toán. Nhóm quyết định trả lời khi phá
 |---|---|---|---|---|---|---|---|
 | Q-48 | Xử lý tiền cọc | Khi trả phòng, tiền cọc được hoàn hay khấu trừ (công nợ, hư hỏng) thế nào? Ai xác nhận? | Kết thúc hợp đồng, công nợ | CN, QL | TB | Mặc định tạm cho MVP: Chưa xử lý tự động; Quản lý ghi chú khi kết thúc hợp đồng | Open |
 | Q-49 | Tháng lẻ ngày | Người thuê vào ở hoặc rời đi giữa tháng: tiền phòng tính theo số ngày hay tròn tháng? | Tính đúng hóa đơn | CN | TB | Mặc định tạm cho MVP: Tính tròn tháng | Open |
-| Q-50 | Lịch lập hóa đơn | Hóa đơn tháng lập vào ngày nào? Hạn thanh toán mặc định bao nhiêu ngày? | Trạng thái quá hạn, thông báo | CN, QL | TB | Mặc định tạm cho MVP: Lập đầu tháng; hạn 10 ngày | Open |
+| Q-50 | Lịch lập hóa đơn | Hóa đơn tháng lập vào ngày nào? Hạn thanh toán mặc định bao nhiêu ngày? | Trạng thái quá hạn, thông báo | CN, QL | TB | Kế toán lên lịch cho từng kỳ: tháng thu, ngày thu, hạn thanh toán. Không cố định ở đầu hay cuối tháng, tùy từng tòa (nhóm chốt 09/11/2026). | Answered |
 | Q-51 | Sai sót chỉ số công tơ | Chỉ số công tơ nhập sai, thay công tơ mới, chỉ số mới nhỏ hơn cũ: xử lý thế nào? | Tính đúng tiền điện, nước | QL | TB | Mặc định tạm cho MVP: Chặn chỉ số mới nhỏ hơn cũ; chỉ sửa được khi hóa đơn chưa phát hành | Open |
 | Q-52 | Cách tính nước của tòa | Tòa đang tính nước theo khối (có công tơ) hay theo người? | Cấu hình bảng giá ban đầu | CN | TB | Mặc định tạm cho MVP: Hỗ trợ cả hai trong bảng giá; dữ liệu mẫu dùng theo khối | Open |
 | Q-53 | Gia hạn, chấm dứt sớm, chuyển phòng | Quy trình gia hạn, chấm dứt hợp đồng trước hạn và chuyển sang phòng khác là gì? | Vòng đời hợp đồng | CN, QL | Thấp | Mặc định tạm cho MVP: Chuyển phòng = kết thúc hợp đồng cũ, tạo hợp đồng mới | Open |
@@ -152,9 +152,9 @@ Phát sinh sau khi đổi bài toán. Nhóm quyết định trả lời khi phá
 
 | Trạng thái | Số câu | Ghi chú |
 |---|---|---|
-| Answered | 42 | Q-01…Q-46 (trừ 5 câu Không áp dụng) và Q-47 |
+| Answered | 43 | Q-01…Q-46 (trừ 5 câu Không áp dụng), Q-47 và Q-50 |
 | Không áp dụng | 5 | Q-03, Q-04 (không còn tổ dân phố, Tổ phó); Q-27, Q-28, Q-29 (không còn khoản đóng góp) |
-| Open | 13 | Q-48…Q-60, nhóm câu hỏi **để sau**; đều có mặc định tạm nên không chặn MVP |
+| Open | 12 | Q-48…Q-60 (trừ Q-50), nhóm câu hỏi **để sau**; đều có mặc định tạm nên không chặn MVP |
 | **Tổng** | **60** | |
 
 Toàn bộ 22 câu mức **Cao** ban đầu đã được trả lời hoặc xác định không áp dụng. Không còn câu hỏi nào **chặn** việc thiết kế.

@@ -41,6 +41,9 @@
 | AC-15-07 | Conflict (giá thay đổi) | Hóa đơn kỳ 11 đã phát hành; Chủ nhà đổi giá điện, hiệu lực từ 01/12/2026 | Xem lại hóa đơn kỳ 11 | Hóa đơn kỳ 11 **giữ nguyên**; giá mới chỉ áp dụng từ kỳ 12 | BR-19 |
 | AC-15-08 | Conflict (số người thay đổi) | Ngày 15/11, phòng P101 thêm một người ở | Lập hóa đơn kỳ 11 và kỳ 12 | Kỳ 11 tính **2 người** (tròn tháng, mặc định Q-49); kỳ 12 tính **3 người** | BR-19, Q-49 |
 | AC-15-09 | Phân quyền | Người dùng chỉ có vai trò Kế toán hoặc Người thuê | Thử lập hóa đơn | Bị từ chối | BR-02 |
+| AC-15-10 | Lên lịch | Kế toán lên lịch kỳ 11/2026 với ngày thu 25/11/2026, hạn thanh toán 05/12/2026 | Quản lý phát hành hóa đơn kỳ đó | Hóa đơn có ngày thu 25/11/2026 và hạn 05/12/2026. Ngày thu không bắt buộc ở đầu hay cuối tháng | BR-20 |
+| AC-15-11 | Exception (lịch sai) | Kế toán đang lên lịch một kỳ | Đặt hạn thanh toán trước ngày thu | Không lưu; báo lỗi | BR-20 |
+| AC-15-12 | Phân quyền | Người dùng không có vai trò Kế toán | Thử lên lịch kỳ thu | Bị từ chối | BR-20 |
 
 ---
 
@@ -73,7 +76,7 @@
 | AC-22-01 | Happy Path | P101 còn nợ 1.978.000 đ (một hóa đơn trả một phần); P105 còn nợ 4.100.000 đ (một hóa đơn quá hạn) | Kế toán mở công nợ | Danh sách các phòng còn nợ, mỗi phòng có tổng nợ, số hóa đơn chưa trả đủ, đánh dấu **quá hạn** | BR-27, BR-32 |
 | AC-22-02 | Alternative | Như trên | Lọc "chỉ quá hạn" | Chỉ hiển thị P105 | BR-27 |
 | AC-22-03 | Exception (không nợ) | Mọi hóa đơn đã thanh toán | Mở công nợ | Danh sách rỗng, có thông báo không có công nợ | – |
-| AC-22-04 | Timeout | Hóa đơn hạn 10/11/2026, đến 11/11 vẫn chưa trả đủ | Mở công nợ ngày 11/11 | Hóa đơn được đánh dấu **quá hạn**; người thuê nhận thông báo quá hạn (nếu US-32 đã có) | BR-27, BR-34; Q-50 |
+| AC-22-04 | Timeout | Hóa đơn hạn 10/11/2026, đến 11/11 vẫn chưa trả đủ | Mở công nợ ngày 11/11 | Hóa đơn được đánh dấu **quá hạn**; người thuê nhận thông báo quá hạn (nếu US-32 đã có) | BR-27, BR-34, BR-20 |
 | AC-22-05 | Conflict (hủy thanh toán) | P101 đã trả đủ; một thanh toán 2.000.000 đ bị hủy (Quản lý đã duyệt) | Mở công nợ | P101 xuất hiện lại với nợ 2.000.000 đ | BR-31 |
 | AC-22-06 | Phân quyền | Người thuê phòng P101 | Thử xem công nợ toàn tòa hoặc của phòng khác | Bị từ chối; chỉ xem được hóa đơn của P101 (US-29) | BR-07 |
 
@@ -86,8 +89,9 @@
 | **US-01** Đăng nhập | AC-01-01 | Đăng nhập đúng tên và mật khẩu | Vào giao diện theo vai trò | BR-01, BR-02 |
 | | AC-01-02 | Sai mật khẩu | "Tài khoản hoặc mật khẩu không chính xác" | BR-05 ([C9] TC2) |
 | | AC-01-03 | Sai tên đăng nhập | Cùng thông báo như AC-01-02 | BR-05 ([C9] TC3) |
-| | AC-01-04 | Người thuê có hợp đồng đã kết thúc đăng nhập | Bị từ chối vì tài khoản đã khóa | BR-04 |
+| | AC-01-04 | Người thuê có hợp đồng đã kết thúc **quá 30 ngày** đăng nhập | Bị từ chối vì tài khoản đã khóa | BR-04 |
 | | AC-01-05 | Người dùng có 2 vai trò (Chủ nhà + Quản lý) đăng nhập | Thấy chức năng của **cả hai** vai trò | BR-02 |
+| | AC-01-06 | Người thuê có hợp đồng đã kết thúc **chưa quá 30 ngày** đăng nhập | Đăng nhập được, xem được hóa đơn; không gửi được yêu cầu | BR-04 |
 | **US-02** Đổi mật khẩu | AC-02-01 | Nhập đúng mật khẩu cũ và mật khẩu mới hợp lệ | Đổi thành công; lần đăng nhập sau dùng mật khẩu mới | – |
 | | AC-02-02 | Mật khẩu cũ sai | Không đổi; báo lỗi | – |
 | **US-04** Tạo tài khoản nhân viên | AC-04-01 | Quản trị hệ thống tạo tài khoản, gán vai trò Quản lý + Kế toán | Tài khoản có cả hai vai trò | BR-02, BR-03 |
@@ -96,10 +100,14 @@
 | **US-06** Quản lý phòng | AC-06-01 | Quản lý thêm phòng đủ thông tin | Phòng ở trạng thái **trống** | BR-10 |
 | | AC-06-02 | Mã phòng đã tồn tại | Không lưu; báo lỗi | BR-10 |
 | | AC-06-03 | Phòng đang có hợp đồng hiệu lực, Quản lý đổi trạng thái sang trống | Bị từ chối | BR-11 |
-| **US-07** Tạo hợp đồng | AC-07-01 | Phòng trống; Quản lý nhập đủ thông tin hợp đồng và người đứng tên | Phòng chuyển **đang thuê**; người đứng tên có tài khoản người thuê | BR-03, BR-12, BR-13 |
-| | AC-07-02 | Phòng đã có hợp đồng hiệu lực | Không tạo hợp đồng thứ hai | BR-11 |
+| **US-07** Nhập hợp đồng đã ký giấy | AC-07-01 | Hợp đồng giấy đã ký, ngày bắt đầu không sau hôm nay; phòng trống; Quản lý nhập đủ thông tin hợp đồng và người đứng tên | Phòng chuyển **đang thuê**; người đứng tên có tài khoản người thuê | BR-03, BR-12, BR-13 |
+| | AC-07-02 | Phòng đã có hợp đồng hiệu lực trùng thời gian với hợp đồng đang nhập | Không tạo hợp đồng thứ hai | BR-11 |
 | | AC-07-03 | Ngày kết thúc trước ngày bắt đầu | Không lưu; báo lỗi | BR-12 |
 | | AC-07-04 | Người đứng tên thiếu một trong các trường bắt buộc (họ tên, ngày sinh, quê quán, CCCD) | Không lưu; chỉ rõ trường thiếu | BR-14 |
+| | AC-07-05 | Hợp đồng giấy đã ký có ngày bắt đầu 01/12/2026; hôm nay 20/11/2026, Quản lý nhập hợp đồng | Hợp đồng **chưa hiệu lực**; phòng vẫn **trống** đến 01/12/2026 rồi mới **đang thuê** | BR-11 |
+| | AC-07-06 | Phòng có hợp đồng đến 30/11/2026; Quản lý nhập hợp đồng mới bắt đầu 01/12/2026, rồi thử một hợp đồng bắt đầu 15/11/2026 | Bắt đầu 01/12: lưu được. Bắt đầu 15/11: không lưu, báo trùng thời gian | BR-11 |
+| | AC-07-07 | Hợp đồng giấy ký và bắt đầu từ 05/11/2026; đến 10/11/2026 Quản lý mới nhập | Lưu được; phòng **đang thuê** ngay; kỳ đã phát hành cho các phòng khác vẫn lập được hóa đơn cho phòng này | BR-12 |
+| | AC-07-08 | Quản lý sửa thông tin hợp đồng nhập sai | Chưa có hóa đơn: sửa được. Đã có hóa đơn: không đổi được ngày bắt đầu, giá thuê | BR-12, BR-25 |
 | **US-08** Người ở | AC-08-01 | Quản lý thêm người ở đủ trường bắt buộc | Người ở được thêm vào phòng; được tính từ kỳ sau | BR-14, BR-19 |
 | | AC-08-02 | Thiếu CCCD | Không lưu; chỉ rõ trường thiếu | BR-14 |
 | | AC-08-03 | Kế toán mở danh sách người ở | **Không thấy** CCCD và thông tin cá nhân khác | BR-08, BR-09 |
@@ -125,6 +133,6 @@
 |---|---|
 | Rà soát AC | *Chờ nhóm* |
 | AC kiểm thử, quan sát được | Đạt: mọi *Then* là trạng thái, con số, thông báo hoặc quyền truy cập cụ thể |
-| Đánh dấu AC phụ thuộc mặc định tạm | AC-15-02 (hướng làm tròn), AC-15-04, AC-15-08, AC-18-06, AC-18-09, AC-22-04, AC-08-04, AC-14-02, AC-14-03, AC-23-01 |
+| Đánh dấu AC phụ thuộc mặc định tạm | AC-15-02 (hướng làm tròn), AC-15-04, AC-15-08, AC-18-06, AC-18-09, AC-08-04, AC-14-02, AC-14-03, AC-23-01 |
 | Test case Chương 9 được giữ lại | AC-01-02, AC-01-03, AC-13-02, AC-13-03, AC-18-04, AC-18-05 |
 | Phê duyệt trước khi thiết kế | *Chờ nhóm* |
