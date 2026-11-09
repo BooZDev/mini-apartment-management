@@ -18,7 +18,7 @@
 | US-06 Quản lý phòng | **Must** | Đồng ý MVP (27/10) | Nền tảng của mọi nghiệp vụ | US-01 | 5 |
 | US-07 Tạo hợp đồng + tài khoản người thuê | **Must** | Đồng ý MVP (27/10) | Hóa đơn gắn với hợp đồng (BR-21) | US-06, US-08 | 8 |
 | US-08 Quản lý người ở | **Must** | Đồng ý MVP (27/10) | Tính phí theo người | US-06 | 5 |
-| US-09 Kết thúc hợp đồng | Should | | Cần cho vòng đời thật, nhưng demo không bắt buộc | US-07; D-17, Q-48 | 5 |
+| US-09 Kết thúc hợp đồng | Should | | Cần cho vòng đời thật, nhưng demo không bắt buộc | US-07; Q-48 | 5 |
 | US-10 Yêu cầu thay đổi người ở | Should | | Có thể để Quản lý sửa trực tiếp trong MVP | US-08 | 5 |
 | US-11 Trạng thái khai báo tạm trú | Could | | Một trường trạng thái, giá trị nghiệp vụ thấp với demo | US-08 | 2 |
 | US-12 Xuất danh sách người ở | Could | | Dùng khi cần | US-08 | 2 |
@@ -26,10 +26,10 @@
 | US-14 Ghi chỉ số điện nước | **Must** | Đồng ý MVP (27/10) | Cần cho tiền điện, nước | US-06, US-13 | 5 |
 | US-15 Lập hóa đơn tháng | **Must** | Đồng ý MVP (27/10) | Giá trị cao nhất (G1); luồng (2) | US-07, US-08, US-13, US-14 | 8 |
 | US-16 Khoản phát sinh | Should | | Linh hoạt nhưng không bắt buộc | US-15 | 2 |
-| US-17 Phiếu điều chỉnh có duyệt | Should | | Cần cho minh bạch (G5), nhưng demo lõi chạy được khi chưa có | US-15; D-16 | 5 |
+| US-17 Phiếu điều chỉnh có duyệt | Should | | Cần cho minh bạch (G5), nhưng demo lõi chạy được khi chưa có | US-15 | 5 |
 | US-18 Ghi nhận thanh toán | **Must** | Đồng ý MVP (27/10) | Luồng (3) "Thu phí" | US-15 | 5 |
 | US-19 Biên lai | Should | | Chứng từ; cách làm đơn giản nhất là trang xem hoặc in | US-18 | 2 |
-| US-20 Yêu cầu hủy thanh toán có duyệt | Should | | Sửa sai minh bạch | US-18; D-16 | 5 |
+| US-20 Yêu cầu hủy thanh toán có duyệt | Should | | Sửa sai minh bạch | US-18 | 5 |
 | US-21 Đóng trước nhiều kỳ | Could | | Chưa quyết định cách làm (Q-56) | US-18 | 5 |
 | US-22 Công nợ theo phòng | **Must** | Đồng ý MVP (27/10) | Luồng (4) "Thống kê"; mục tiêu G2 | US-18 | 5 |
 | US-23 Doanh thu theo tháng | **Must** | Đồng ý MVP (27/10) | Luồng (4); mục tiêu G4 | US-18 | 2 |
@@ -93,7 +93,7 @@ Nếu velocity Sprint 2 thấp, cắt hoặc thu gọn theo thứ tự:
 | Câu hỏi | Ghi chú |
 |---|---|
 | AI và Human có chọn khác nhau không? | Nhóm đồng ý MVP do AI đề xuất. Điểm cần theo dõi: US-17 và US-20 (sửa sai minh bạch) đang xếp Should, dù mục tiêu G5 quan trọng |
-| Quyết định nào AI khó tự xác định? | D-16 (không tự duyệt), D-17 (khóa tài khoản khi còn nợ), Q-56 (đóng trước nhiều kỳ) |
+| Quyết định nào AI khó tự xác định? | D-16 (không tự duyệt), D-17 (khóa tài khoản khi còn nợ), Q-56 (đóng trước nhiều kỳ). D-16, D-17 đã chốt ngày 09/11/2026 |
 | Story nào AI đánh giá cao nhưng có thể chưa nên làm? | US-32 (thông báo): cần tác vụ định kỳ, tăng độ phức tạp hạ tầng |
 
 ---

@@ -11,4 +11,5 @@ template
 report/*
 !report/us/
 !report/db/
-report/api/
+!report/api/
+report/api/*.md
