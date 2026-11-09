@@ -8,3 +8,7 @@ docs/*
 source
 supabase
 template
+report/*
+!report/us/
+!report/db/
+report/api/
