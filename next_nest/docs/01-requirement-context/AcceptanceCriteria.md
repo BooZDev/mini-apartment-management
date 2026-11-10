@@ -2,7 +2,7 @@
 
 > Template WB-4, Bước 4. **v0.2 – 27/10/2026**, theo bài toán chung cư mini cho thuê.
 > Cấu trúc **Given – When – Then**. Chỉ dùng quy tắc trong `BusinessRules.md`. Chỗ nào dùng **mặc định tạm** của câu hỏi để sau (Q-48…Q-60) thì ghi rõ để kiểm thử lại khi nhóm quyết định.
-> Mục 1–3: ba story quan trọng nhất, đủ các loại tình huống của template. Mục 4: AC rút gọn cho 10 story Must còn lại.
+> Mục 1–3: ba story quan trọng nhất, đủ các loại tình huống của template. Mục 4: tra cứu AC của các story đã có đặc tả chi tiết trong `report/us/` (đánh số theo các file đó, cập nhật 10/11/2026). Mục 5: AC rút gọn cho US-04, US-23.
 
 **Tình huống của template, áp vào bài toán cho thuê**
 
@@ -39,11 +39,12 @@
 | AC-15-05 | Exception (trùng kỳ) | Phòng P101 đã có hóa đơn kỳ 11/2026 | Quản lý lập lại hóa đơn kỳ 11/2026 | **Không** tạo hóa đơn thứ hai cho P101 kỳ 11 | BR-20, BR-21 |
 | AC-15-06 | Timeout (bỏ dở) | Quản lý đang ở bước xem trước | Quản lý thoát trước khi phát hành | **Không** hóa đơn nào được phát hành | Suy từ US-15 (xem trước rồi phát hành) |
 | AC-15-07 | Conflict (giá thay đổi) | Hóa đơn kỳ 11 đã phát hành; Chủ nhà đổi giá điện, hiệu lực từ 01/12/2026 | Xem lại hóa đơn kỳ 11 | Hóa đơn kỳ 11 **giữ nguyên**; giá mới chỉ áp dụng từ kỳ 12 | BR-19 |
-| AC-15-08 | Conflict (số người thay đổi) | Ngày 15/11, phòng P101 thêm một người ở | Lập hóa đơn kỳ 11 và kỳ 12 | Kỳ 11 tính **2 người** (tròn tháng, mặc định Q-49); kỳ 12 tính **3 người** | BR-19, Q-49 |
+| AC-15-08 | Conflict (số người thay đổi) | Ngày 15/11, phòng P101 thêm một người ở | Lập hóa đơn kỳ 11 và kỳ 12 | Kỳ 11 tính **2 người** (người ở thêm giữa tháng tính từ kỳ sau); kỳ 12 tính **3 người** | BR-19, Q-49 |
 | AC-15-09 | Phân quyền | Người dùng chỉ có vai trò Kế toán hoặc Người thuê | Thử lập hóa đơn | Bị từ chối | BR-02 |
 | AC-15-10 | Lên lịch | Kế toán lên lịch kỳ 11/2026 với ngày thu 25/11/2026, hạn thanh toán 05/12/2026 | Quản lý phát hành hóa đơn kỳ đó | Hóa đơn có ngày thu 25/11/2026 và hạn 05/12/2026. Ngày thu không bắt buộc ở đầu hay cuối tháng | BR-20 |
 | AC-15-11 | Exception (lịch sai) | Kế toán đang lên lịch một kỳ | Đặt hạn thanh toán trước ngày thu | Không lưu; báo lỗi | BR-20 |
 | AC-15-12 | Phân quyền | Người dùng không có vai trò Kế toán | Thử lên lịch kỳ thu | Bị từ chối | BR-20 |
+| AC-15-13 | Alternative (vào ở giữa tháng) | Kỳ 11/2026. Hợp đồng phòng P102 bắt đầu 20/11/2026, giá thuê 3.000.000 đ, 1 người ở, đăng ký wifi; chỉ số bàn giao điện 500, nước 30; chỉ số kỳ 11: điện 560, nước 33 | Quản lý xem trước hóa đơn kỳ 11 | Tháng 11 có 30 ngày, tính 11 ngày: tiền phòng 3.000.000 × 11 ÷ 30 = 1.100.000; wifi 100.000 × 11 ÷ 30 = 36.667; vệ sinh 30.000 × 11 ÷ 30 = 11.000; điện 60 × 3.456 = 207.360; nước 3 × 25.000 = 75.000. Tổng trước làm tròn 1.430.027, sau làm tròn **1.430.000**. Từ kỳ 12 tính tròn tháng | BR-21, Q-49 |
 
 ---
 
@@ -82,57 +83,102 @@
 
 ---
 
-## 4. AC rút gọn cho các story Must còn lại
+## 4. AC của các story có đặc tả chi tiết
 
-| Story | AC ID | Given / When | Then | Quy tắc |
-|---|---|---|---|---|
-| **US-01** Đăng nhập | AC-01-01 | Đăng nhập đúng tên và mật khẩu | Vào giao diện theo vai trò | BR-01, BR-02 |
-| | AC-01-02 | Sai mật khẩu | "Tài khoản hoặc mật khẩu không chính xác" | BR-05 ([C9] TC2) |
-| | AC-01-03 | Sai tên đăng nhập | Cùng thông báo như AC-01-02 | BR-05 ([C9] TC3) |
-| | AC-01-04 | Người thuê có hợp đồng đã kết thúc **quá 30 ngày** đăng nhập | Bị từ chối vì tài khoản đã khóa | BR-04 |
-| | AC-01-05 | Người dùng có 2 vai trò (Chủ nhà + Quản lý) đăng nhập | Thấy chức năng của **cả hai** vai trò | BR-02 |
-| | AC-01-06 | Người thuê có hợp đồng đã kết thúc **chưa quá 30 ngày** đăng nhập | Đăng nhập được, xem được hóa đơn; không gửi được yêu cầu | BR-04 |
-| **US-02** Đổi mật khẩu | AC-02-01 | Nhập đúng mật khẩu cũ và mật khẩu mới hợp lệ | Đổi thành công; lần đăng nhập sau dùng mật khẩu mới | – |
-| | AC-02-02 | Mật khẩu cũ sai | Không đổi; báo lỗi | – |
-| **US-04** Tạo tài khoản nhân viên | AC-04-01 | Quản trị hệ thống tạo tài khoản, gán vai trò Quản lý + Kế toán | Tài khoản có cả hai vai trò | BR-02, BR-03 |
-| | AC-04-02 | Tên đăng nhập đã tồn tại | Không tạo; báo lỗi | – |
-| | AC-04-03 | Người dùng không có vai trò Quản trị hệ thống thử tạo tài khoản | Bị từ chối | BR-03 |
-| **US-06** Quản lý phòng | AC-06-01 | Quản lý thêm phòng đủ thông tin | Phòng ở trạng thái **trống** | BR-10 |
-| | AC-06-02 | Mã phòng đã tồn tại | Không lưu; báo lỗi | BR-10 |
-| | AC-06-03 | Phòng đang có hợp đồng hiệu lực, Quản lý đổi trạng thái sang trống | Bị từ chối | BR-11 |
-| **US-07** Nhập hợp đồng đã ký giấy | AC-07-01 | Hợp đồng giấy đã ký, ngày bắt đầu không sau hôm nay; phòng trống; Quản lý nhập đủ thông tin hợp đồng và người đứng tên | Phòng chuyển **đang thuê**; người đứng tên có tài khoản người thuê | BR-03, BR-12, BR-13 |
-| | AC-07-02 | Phòng đã có hợp đồng hiệu lực trùng thời gian với hợp đồng đang nhập | Không tạo hợp đồng thứ hai | BR-11 |
-| | AC-07-03 | Ngày kết thúc trước ngày bắt đầu | Không lưu; báo lỗi | BR-12 |
-| | AC-07-04 | Người đứng tên thiếu một trong các trường bắt buộc (họ tên, ngày sinh, quê quán, CCCD) | Không lưu; chỉ rõ trường thiếu | BR-14 |
-| | AC-07-05 | Hợp đồng giấy đã ký có ngày bắt đầu 01/12/2026; hôm nay 20/11/2026, Quản lý nhập hợp đồng | Hợp đồng **chưa hiệu lực**; phòng vẫn **trống** đến 01/12/2026 rồi mới **đang thuê** | BR-11 |
-| | AC-07-06 | Phòng có hợp đồng đến 30/11/2026; Quản lý nhập hợp đồng mới bắt đầu 01/12/2026, rồi thử một hợp đồng bắt đầu 15/11/2026 | Bắt đầu 01/12: lưu được. Bắt đầu 15/11: không lưu, báo trùng thời gian | BR-11 |
-| | AC-07-07 | Hợp đồng giấy ký và bắt đầu từ 05/11/2026; đến 10/11/2026 Quản lý mới nhập | Lưu được; phòng **đang thuê** ngay; kỳ đã phát hành cho các phòng khác vẫn lập được hóa đơn cho phòng này | BR-12 |
-| | AC-07-08 | Quản lý sửa thông tin hợp đồng nhập sai | Chưa có hóa đơn: sửa được. Đã có hóa đơn: không đổi được ngày bắt đầu, giá thuê | BR-12, BR-25 |
-| **US-08** Người ở | AC-08-01 | Quản lý thêm người ở đủ trường bắt buộc | Người ở được thêm vào phòng; được tính từ kỳ sau | BR-14, BR-19 |
-| | AC-08-02 | Thiếu CCCD | Không lưu; chỉ rõ trường thiếu | BR-14 |
-| | AC-08-03 | Kế toán mở danh sách người ở | **Không thấy** CCCD và thông tin cá nhân khác | BR-08, BR-09 |
-| | AC-08-04 | Quản lý ghi nhận người rời đi ngày 20/11 | Kỳ 12 không tính người đó | BR-19, Q-49 |
-| **US-13** Bảng giá | AC-13-01 | Chủ nhà thêm giá điện mới, hiệu lực 01/12/2026 | Kỳ 11 dùng giá cũ, kỳ 12 dùng giá mới | BR-18, BR-19 |
-| | AC-13-02 | Tên khoản thu để trống | "**Hãy nhập vào 1 tên khoản thu hợp lệ!**" | BR-24 ([C9] Bảng 9-5) |
-| | AC-13-03 | Đơn giá trống hoặc không phải số hợp lệ | "**Hãy nhập vào số tiền hợp lệ!**" | BR-24 ([C9] Bảng 9-5) |
-| | AC-13-04 | Người không có vai trò Chủ nhà thử sửa bảng giá | Bị từ chối | BR-18 |
-| **US-14** Chỉ số điện nước | AC-14-01 | Quản lý nhập chỉ số mới lớn hơn hoặc bằng chỉ số cũ | Lưu; dùng cho hóa đơn kỳ đó | BR-17 |
-| | AC-14-02 | Chỉ số mới nhỏ hơn chỉ số cũ | Không lưu (mặc định tạm) | Q-51 |
-| | AC-14-03 | Sửa chỉ số khi hóa đơn kỳ đó đã phát hành | Bị từ chối; phải dùng phiếu điều chỉnh | Q-51, BR-25 |
-| **US-23** Doanh thu theo tháng | AC-23-01 | Tháng 11 có các thanh toán hợp lệ tổng 50.000.000 đ, và một thanh toán đã hủy 2.000.000 đ | Chủ nhà xem doanh thu tháng 11 | Hiển thị **50.000.000 đ** (không tính thanh toán đã hủy). Mặc định tạm: doanh thu = **tiền thực thu** trong tháng | BR-31, BR-35; **Q-59** |
-| | AC-23-02 | Tháng chưa có thanh toán | Xem doanh thu | Hiển thị 0 đ | – |
-| **US-29** Người thuê xem hóa đơn | AC-29-01 | Người thuê phòng P101 đăng nhập | Thấy hóa đơn, trạng thái, lịch sử thanh toán của **P101** | BR-07 |
-| | AC-29-02 | Người thuê P101 thử mở hóa đơn của P102 (kể cả bằng đường dẫn trực tiếp) | Bị từ chối | BR-07 |
-| | AC-29-03 | Người thuê xem danh sách người ở cùng phòng | **Không thấy** CCCD của người khác | BR-09 |
+Nguồn chuẩn là `report/us/detailed/us-xx.md` (dữ liệu nền, Given, When, Then đầy đủ) và `report/us/testcase/tc-xx.md` (test case). Mã AC đánh số theo các file đó. Bảng dưới chỉ để tra cứu mã và loại tình huống.
+
+| Story | AC ID | Loại | Nguồn |
+|---|---|---|---|
+| **US-01** Đăng nhập | AC-01-01 | Happy Path (Đăng nhập đúng) | `us-01.md`, `tc-01.md` |
+|  | AC-01-02 | Exception (Sai mật khẩu) |  |
+|  | AC-01-03 | Exception (Sai tên đăng nhập) |  |
+|  | AC-01-04 | Exception (Bỏ trống thông tin) |  |
+|  | AC-01-05 | Exception (Tài khoản bị khóa) |  |
+|  | AC-01-06 | Alternative (Nhiều vai trò) |  |
+|  | AC-01-07 | Phân quyền (Chưa đăng nhập) |  |
+|  | AC-01-08 | Phân quyền (Đăng nhập nhưng sai vai trò) |  |
+|  | AC-01-09 | Alternative (Hợp đồng kết thúc chưa quá 30 ngày) |  |
+|  | AC-01-10 | Exception (Đăng nhập sai nhiều lần) |  |
+| **US-02** Đổi mật khẩu | AC-02-01 | Happy Path (Đổi thành công) | `us-02.md`, `tc-02.md` |
+|  | AC-02-02 | Exception (Mật khẩu hiện tại sai) |  |
+|  | AC-02-03 | Exception (Thiếu thông tin) |  |
+|  | AC-02-04 | Exception (Xác nhận không khớp) |  |
+|  | AC-02-05 | Exception (Mật khẩu mới không đủ mạnh) |  |
+|  | AC-02-06 | Exception (Trùng mật khẩu cũ) |  |
+|  | AC-02-07 | Phân quyền (Chưa đăng nhập) |  |
+|  | AC-02-08 | Phân quyền (Chỉ đổi mật khẩu của chính mình) |  |
+| **US-06** Quản lý phòng | AC-06-01 | Happy Path (Thêm phòng mới hợp lệ) | `us-06.md`, `tc-06.md` |
+|  | AC-06-02 | Exception (Trùng mã phòng) |  |
+|  | AC-06-03 | Exception (Thiếu thông tin hoặc số liệu không hợp lệ) |  |
+|  | AC-06-04 | Conflict (Đổi trạng thái phòng đang có hợp đồng hiệu lực) |  |
+|  | AC-06-05 | Alternative (Cập nhật thông tin & chuyển trạng thái bảo trì cho phòng trống) |  |
+|  | AC-06-06 | Phân quyền |  |
+| **US-07** Nhập hợp đồng đã ký giấy | AC-07-01 | Happy Path (Nhập hợp đồng hiệu lực ngay & cấp tài khoản) | `us-07.md`, `tc-07.md` |
+|  | AC-07-02 | Exception (Trùng khoảng thời gian hợp đồng của cùng phòng) |  |
+|  | AC-07-03 | Exception (Ngày kết thúc trước ngày bắt đầu) |  |
+|  | AC-07-04 | Exception (Người đứng tên thiếu trường bắt buộc) |  |
+|  | AC-07-05 | Alternative (Hợp đồng có ngày bắt đầu trong tương lai) |  |
+|  | AC-07-06 | Alternative (Nhập bù hợp đồng đã ký và bắt đầu trong quá khứ) |  |
+|  | AC-07-07 | Conflict (Sửa hợp đồng trước và sau khi có hóa đơn) |  |
+|  | AC-07-08 | Phân quyền |  |
+| **US-08** Người ở | AC-08-01 | Happy Path (Thêm người ở đủ thông tin) | `us-08.md`, `tc-08.md` |
+|  | AC-08-02 | Exception (Thiếu CCCD hoặc trường bắt buộc) |  |
+|  | AC-08-03 | Exception (Sai định dạng hoặc trùng CCCD trong cùng thời gian) |  |
+|  | AC-08-04 | Alternative (Ghi nhận người rời đi & ẩn sau 1 năm) |  |
+|  | AC-08-05 | Phân quyền & Bảo mật dữ liệu cá nhân |  |
+| **US-10** Yêu cầu thay đổi người ở | AC-10-01 | Happy Path (Gửi yêu cầu thêm người) | `us-10.md`, `tc-10.md` |
+|  | AC-10-02 | Happy Path (Duyệt yêu cầu) |  |
+|  | AC-10-03 | Exception (Thiếu dữ liệu) |  |
+|  | AC-10-04 | Conflict (Người đứng tên xin rời đi) |  |
+|  | AC-10-05 | Phân quyền |  |
+|  | AC-10-06 | Alternative (Từ chối, yêu cầu đã xử lý) |  |
+|  | AC-10-07 | Exception (Hợp đồng đã kết thúc) |  |
+| **US-11** Khai báo tạm trú | AC-11-01 | Happy Path (Đổi tình trạng) | `us-11.md`, `tc-11.md` |
+|  | AC-11-02 | Exception (Không có chức năng cấp tạm trú) |  |
+|  | AC-11-03 | Phân quyền (Sai vai trò sửa dữ liệu) |  |
+|  | AC-11-04 | Phân quyền (Người thuê xem thông tin) |  |
+| **US-13** Bảng giá | AC-13-01 | Happy Path (Thêm khoản thu hoặc mức giá mới) | `us-13.md`, `tc-13.md` |
+|  | AC-13-02 | Conflict (Đổi giá sau khi hóa đơn đã phát hành & chặn sửa/xóa giá cũ) |  |
+|  | AC-13-03 | Exception (Tên khoản thu để trống hoặc sai độ dài) |  |
+|  | AC-13-04 | Exception (Đơn giá trống hoặc không phải số hợp lệ) |  |
+|  | AC-13-05 | Exception (Trùng tên khoản thu hoặc trùng ngày hiệu lực) |  |
+|  | AC-13-06 | Phân quyền |  |
+| **US-14** Chỉ số điện nước | AC-14-01 | Happy Path (Tự lấy chỉ số cũ & ghi chỉ số hợp lệ) | `us-14.md`, `tc-14.md` |
+|  | AC-14-02 | Exception (Bỏ trống hoặc sai định dạng chỉ số) |  |
+|  | AC-14-03 | Exception (Chỉ số mới nhỏ hơn chỉ số cũ) |  |
+|  | AC-14-04 | Conflict (Ghi lại cùng kỳ & khóa sau khi phát hành hóa đơn) |  |
+|  | AC-14-05 | Exception & Phân quyền (Phòng trống hoặc sai vai trò) |  |
+|  | AC-14-06 | Exception (Kỳ chưa được lên lịch) |  |
+| **US-29** Người thuê xem hóa đơn | AC-29-01 | Happy Path (Xem danh sách hóa đơn & tổng còn phải trả) | `us-29.md`, `tc-29.md` |
+|  | AC-29-02 | Happy Path (Xem chi tiết dòng hóa đơn đã chụp) |  |
+|  | AC-29-03 | Happy Path (Xem lịch sử thanh toán & giao dịch đã hủy) |  |
+|  | AC-29-04 | Phân quyền & Bảo mật theo phòng (Chặn xem phòng khác & chặn sửa/xóa) |  |
+|  | AC-29-05 | Alternative (Phòng mới thuê chưa có hóa đơn phát hành) |  |
+|  | AC-29-06 | Bảo mật dữ liệu người cùng phòng |  |
 
 ---
 
-## 5. Human Checkpoint
+## 5. AC rút gọn cho các story chưa có đặc tả chi tiết
+
+| Story | AC ID | Given / When | Then | Quy tắc |
+|---|---|---|---|---|
+| **US-09** Kết thúc, gia hạn hợp đồng | AC-09-01 | Hợp đồng P101 đến 30/11/2026; Quản lý gia hạn đến 30/11/2027 theo phụ lục PL-01 ký 25/11/2026 | Vẫn là hợp đồng cũ, ngày kết thúc mới 30/11/2027; tài khoản người thuê giữ nguyên; ghi nhật ký | BR-12 |
+| | AC-09-02 | Phòng P101 đã có hợp đồng của người thuê mới bắt đầu 01/12/2026; Quản lý gia hạn hợp đồng cũ đến 31/12/2026 | Không lưu; báo thời gian trùng với hợp đồng khác của phòng | BR-11 |
+| | AC-09-03 | Gia hạn kèm giá thuê mới 3.200.000 đ từ 01/12/2026 | Hóa đơn kỳ 11 vẫn 3.000.000 đ tiền phòng; từ kỳ 12 là 3.200.000 đ | BR-12, BR-19 |
+| **US-04** Tạo tài khoản nhân viên | AC-04-01 | Quản trị hệ thống tạo tài khoản, gán vai trò Quản lý + Kế toán | Tài khoản có cả hai vai trò | BR-02, BR-03 |
+| | AC-04-02 | Tên đăng nhập đã tồn tại | Không tạo; báo lỗi | – |
+| | AC-04-03 | Người dùng không có vai trò Quản trị hệ thống thử tạo tài khoản | Bị từ chối | BR-03 |
+| **US-23** Doanh thu theo tháng | AC-23-01 | Tháng 11 có các thanh toán hợp lệ tổng 50.000.000 đ, và một thanh toán đã hủy 2.000.000 đ | Chủ nhà xem doanh thu tháng 11 | Hiển thị **50.000.000 đ** (không tính thanh toán đã hủy). Mặc định tạm: doanh thu = **tiền thực thu** trong tháng | BR-31, BR-35; **Q-59** |
+| | AC-23-02 | Tháng chưa có thanh toán | Xem doanh thu | Hiển thị 0 đ | – |
+
+---
+
+## 6. Human Checkpoint
 
 | Việc cần làm | Kết quả |
 |---|---|
 | Rà soát AC | *Chờ nhóm* |
 | AC kiểm thử, quan sát được | Đạt: mọi *Then* là trạng thái, con số, thông báo hoặc quyền truy cập cụ thể |
-| Đánh dấu AC phụ thuộc mặc định tạm | AC-15-02 (hướng làm tròn), AC-15-04, AC-15-08, AC-18-06, AC-18-09, AC-08-04, AC-14-02, AC-14-03, AC-23-01 |
-| Test case Chương 9 được giữ lại | AC-01-02, AC-01-03, AC-13-02, AC-13-03, AC-18-04, AC-18-05 |
+| Đánh dấu AC phụ thuộc mặc định tạm | AC-15-02 (hướng làm tròn), AC-15-04, AC-18-06, AC-18-09, AC-14-03, AC-14-04, AC-23-01 |
+| Test case Chương 9 được giữ lại | AC-01-02, AC-01-03, AC-13-03, AC-13-04, AC-18-04, AC-18-05 |
 | Phê duyệt trước khi thiết kế | *Chờ nhóm* |

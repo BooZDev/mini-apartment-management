@@ -31,7 +31,7 @@
 |---|---|---|---|
 | BR-10 | Hệ thống quản lý **một tòa**. Phòng có mã phòng, tầng, diện tích, giá niêm yết, trạng thái (**trống / đang thuê / bảo trì**) | [QĐ Q-09, Q-10] | Đã chốt |
 | BR-11 | Một phòng tại một thời điểm có **tối đa một hợp đồng hiệu lực**; thời gian các hợp đồng của một phòng **không được giao nhau**. Hợp đồng có ngày bắt đầu trong tương lai thì phòng chỉ chuyển **đang thuê** từ ngày bắt đầu | [QĐ Q-09; 09/11/2026] | Đã chốt |
-| BR-12 | Hợp đồng được **ký giấy trước**, Quản lý **nhập lên hệ thống sau**. Thông tin gồm: số hợp đồng giấy (nếu có), ngày ký, phòng, người đứng tên, ngày bắt đầu, ngày kết thúc, tiền cọc, giá thuê | [QĐ Q-01; đề xuất được chấp nhận; 09/11/2026] | Đã chốt |
+| BR-12 | Hợp đồng được **ký giấy trước**, Quản lý **nhập lên hệ thống sau**. Thông tin gồm: số hợp đồng giấy (nếu có), ngày ký, phòng, người đứng tên, ngày bắt đầu, ngày kết thúc, tiền cọc, giá thuê, chỉ số điện nước bàn giao. **Gia hạn** ghi trên chính hợp đồng đó theo phụ lục (có thể đổi giá thuê từ ngày gia hạn), giữ nguyên tài khoản người thuê; **chuyển phòng** là kết thúc hợp đồng cũ và nhập hợp đồng mới (Q-53) | [QĐ Q-01; đề xuất được chấp nhận; 09/11/2026, 10/11/2026] | Đã chốt |
 | BR-13 | **Người đứng tên hợp đồng** chịu trách nhiệm thanh toán; người ở cùng được ghi trong danh sách người ở của phòng | [QĐ Q-11] | Đã chốt |
 | BR-14 | Thông tin người ở: họ tên, ngày sinh, giới tính, quê quán, SĐT, CCCD, quan hệ với người đứng tên, ngày vào ở, ngày rời đi, ghi chú. **Bắt buộc**: họ tên, ngày sinh, quê quán, CCCD | [QĐ Q-31] | Đã chốt |
 | BR-15 | Người thuê gửi yêu cầu thay đổi người ở (thêm người, người rời đi, sửa thông tin); **Quản lý duyệt** | [QĐ Q-32] | Đã chốt |
@@ -41,11 +41,11 @@
 
 | ID | Quy tắc | Nguồn | Trạng thái |
 |---|---|---|---|
-| BR-17 | Danh mục khoản thu và cách tính: **tiền phòng** (theo hợp đồng); **điện** (chỉ số công tơ × đơn giá); **nước** (theo khối hoặc theo người); **dịch vụ** (theo phòng hoặc theo người); **gửi xe** (theo xe); **phát sinh** (nhập tay). Khoản thu **bắt buộc** áp dụng cho mọi hợp đồng; khoản **tùy chọn** (ví dụ wifi, gửi xe) chỉ áp dụng khi hợp đồng có đăng ký | [QĐ Q-12, Q-40; API-D06] | Đã chốt |
+| BR-17 | Danh mục khoản thu và cách tính: **tiền phòng** (theo hợp đồng); **điện** (chỉ số công tơ × đơn giá); **nước** (theo khối hoặc theo người; tòa này dùng **theo khối**, Q-52); **dịch vụ** (theo phòng hoặc theo người); **gửi xe** (theo xe); **phát sinh** (nhập tay). Khoản thu **bắt buộc** áp dụng cho mọi hợp đồng; khoản **tùy chọn** (ví dụ wifi, gửi xe) chỉ áp dụng khi hợp đồng có đăng ký | [QĐ Q-12, Q-40; API-D06] | Đã chốt |
 | BR-18 | **Chủ nhà** thiết lập bảng giá; mỗi mức giá có **ngày bắt đầu hiệu lực** | [QĐ Q-13] | Đã chốt |
 | BR-19 | Đơn giá và số người ở được **chốt theo thời điểm hiệu lực**. Hóa đơn đã phát hành **không đổi**; thay đổi chỉ áp dụng từ kỳ sau | [QĐ Q-17] | Đã chốt |
 | BR-20 | **Khoản thu** là loại phí; **kỳ hóa đơn** (đợt thu) là theo **tháng**, có **hạn thanh toán**. **Kế toán lên lịch** từng kỳ: tháng thu, ngày thu, hạn thanh toán; không cố định ở đầu hay cuối tháng, tùy từng tòa | [QĐ Q-14, Q-18, Q-50] | Đã chốt |
-| BR-21 | Hóa đơn lập **theo phòng**, gắn với hợp đồng hiệu lực; khoản tính theo người dùng **số người đang ở** trong phòng | [QĐ Q-08] | Đã chốt |
+| BR-21 | Hóa đơn lập **theo phòng**, gắn với hợp đồng hiệu lực; khoản tính theo người dùng **số người đang ở** trong phòng. Tháng đầu của hợp đồng (vào ở giữa tháng) tính tiền phòng và các khoản cố định hằng tháng **theo số ngày ở**; điện nước theo chỉ số | [QĐ Q-08, Q-49] | Đã chốt |
 | BR-22 | Tính chính xác đến đồng; **tổng hóa đơn làm tròn đến 1.000 đ** | [QĐ Q-15] | Đã chốt |
 | BR-23 | Mã hóa đơn do hệ thống **tự sinh** | [QĐ Q-20] | Đã chốt |
 | BR-24 | Kiểm tra dữ liệu khoản thu: tên khoản thu hợp lệ; đơn giá là số hợp lệ. Thông báo lỗi tương ứng như ở test case Chương 9 | [C9] (đã điều chỉnh: mã tự sinh) | Đã chốt |
@@ -80,10 +80,7 @@
 | Câu hỏi | Chủ đề | Mặc định tạm cho MVP | Ảnh hưởng |
 |---|---|---|---|
 | Q-48 | Tiền cọc khi trả phòng | Chưa xử lý tự động; Quản lý ghi chú khi kết thúc hợp đồng | US-09 |
-| Q-49 | Vào ở hoặc rời đi giữa tháng | Tính **tròn tháng** | US-15 |
 | Q-51 | Chỉ số công tơ sai | **Chặn** chỉ số mới nhỏ hơn chỉ số cũ; chỉ sửa được khi hóa đơn chưa phát hành | US-14 |
-| Q-52 | Cách tính nước của tòa | Hỗ trợ cả hai; dữ liệu mẫu dùng **theo khối** | US-13 |
-| Q-53 | Gia hạn, chấm dứt sớm, chuyển phòng | Chuyển phòng = kết thúc hợp đồng cũ, tạo hợp đồng mới | US-07, US-09 |
 | Q-54 | Loại khoản chi | Danh sách loại chi do Chủ nhà cấu hình | US-24 |
 | Q-55 | Trạng thái yêu cầu sửa chữa | Mới → Đang xử lý → Hoàn thành / Từ chối | US-31 |
 | Q-56 | Đóng trước nhiều kỳ | MVP **chưa hỗ trợ** (US-21 mức Could) | US-21 |
