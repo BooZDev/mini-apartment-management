@@ -24,9 +24,9 @@
 | ID | Actor | User Story | Business Value | Nguồn | Phụ thuộc / câu hỏi để sau |
 |---|---|---|---|---|---|
 | US-06 | QL | Là quản lý, tôi muốn **quản lý danh sách phòng** (mã, tầng, diện tích, giá niêm yết, trạng thái), để biết phòng nào đang trống | Nền tảng của mọi nghiệp vụ | BR-10 | – |
-| US-07 | QL | Là quản lý, tôi muốn **nhập hợp đồng đã ký giấy** cho một phòng **và cấp tài khoản cho người đứng tên**, để bắt đầu tính tiền và cho người thuê tra cứu | Khởi đầu vòng đời thuê | BR-03, BR-11, BR-12, BR-13 | Q-53 |
+| US-07 | QL | Là quản lý, tôi muốn **nhập hợp đồng đã ký giấy** cho một phòng **và cấp tài khoản cho người đứng tên**, để bắt đầu tính tiền và cho người thuê tra cứu | Khởi đầu vòng đời thuê | BR-03, BR-11, BR-12, BR-13 | – |
 | US-08 | QL | Là quản lý, tôi muốn **quản lý danh sách người ở** của phòng, để tính đúng các khoản theo người và nắm ai đang ở | Tính phí theo người, quản lý cư trú | BR-09, BR-14, BR-21 | – |
-| US-09 | QL | Là quản lý, tôi muốn **kết thúc hợp đồng**, để phòng trở về trạng thái trống và tài khoản người thuê chuyển chỉ đọc rồi bị khóa | Đóng vòng đời thuê | BR-04, BR-11 | **Q-48** (tiền cọc), Q-53 |
+| US-09 | QL | Là quản lý, tôi muốn **kết thúc hoặc gia hạn hợp đồng**, để phòng trở về trạng thái trống và tài khoản người thuê chuyển chỉ đọc rồi bị khóa | Đóng vòng đời thuê | BR-04, BR-11, BR-12 | **Q-48** (tiền cọc) |
 | US-10 | NT, QL | Là người thuê, tôi muốn **gửi yêu cầu thay đổi người ở** để quản lý duyệt, để thông tin phòng luôn đúng | Dữ liệu người ở chính xác | BR-07, BR-15 | – |
 | US-11 | QL | Là quản lý, tôi muốn **ghi nhận tình trạng khai báo tạm trú** của từng người ở, để biết ai chưa khai báo | Tuân thủ quy định cư trú | BR-16 | – |
 | US-12 | QL | Là quản lý, tôi muốn **xuất danh sách người ở**, để khai báo tạm trú khi cần | Tiết kiệm thời gian | BR-09, BR-36 | – |
@@ -35,9 +35,9 @@
 
 | ID | Actor | User Story | Business Value | Nguồn | Phụ thuộc / câu hỏi để sau |
 |---|---|---|---|---|---|
-| US-13 | CN | Là chủ nhà, tôi muốn **thiết lập bảng giá các khoản thu, có ngày hiệu lực**, để hóa đơn luôn tính đúng giá hiện hành | Luồng (2) "Tạo khoản thu" | BR-17, BR-18, BR-19, BR-24 | Q-52 |
+| US-13 | CN | Là chủ nhà, tôi muốn **thiết lập bảng giá các khoản thu, có ngày hiệu lực**, để hóa đơn luôn tính đúng giá hiện hành | Luồng (2) "Tạo khoản thu" | BR-17, BR-18, BR-19, BR-24 | – |
 | US-14 | QL | Là quản lý, tôi muốn **ghi chỉ số điện, nước hằng tháng** cho từng phòng, để tính tiền điện nước | Tính đúng tiền điện nước | BR-17 | **Q-51** |
-| US-15 | QL, KT | Là quản lý, tôi muốn **lập hóa đơn tháng cho tất cả phòng đang thuê** trong một lần **theo lịch thu do kế toán đặt**, xem trước rồi phát hành, để không phải tính tay từng phòng | Mục tiêu G1; luồng (2) | BR-19…BR-23 | **Q-49** |
+| US-15 | QL, KT | Là quản lý, tôi muốn **lập hóa đơn tháng cho tất cả phòng đang thuê** trong một lần **theo lịch thu do kế toán đặt**, xem trước rồi phát hành, để không phải tính tay từng phòng | Mục tiêu G1; luồng (2) | BR-19…BR-23 | – |
 | US-16 | QL | Là quản lý, tôi muốn **thêm khoản phát sinh** vào hóa đơn trước khi phát hành, để thu các khoản ngoài bảng giá | Linh hoạt | BR-17 | Q-55 |
 | US-17 | KT, QL | Là kế toán, tôi muốn **lập phiếu điều chỉnh** cho hóa đơn đã phát hành để quản lý duyệt, để sửa sai mà vẫn minh bạch | Mục tiêu G5 | BR-25, BR-36 | – |
 
