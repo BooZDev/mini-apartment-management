@@ -18,7 +18,7 @@
 | US-06 Quản lý phòng | **Must** | Đồng ý MVP (27/10) | Nền tảng của mọi nghiệp vụ | US-01 | 5 |
 | US-07 Tạo hợp đồng + tài khoản người thuê | **Must** | Đồng ý MVP (27/10) | Hóa đơn gắn với hợp đồng (BR-21) | US-06, US-08 | 8 |
 | US-08 Quản lý người ở | **Must** | Đồng ý MVP (27/10) | Tính phí theo người | US-06 | 5 |
-| US-09 Kết thúc hợp đồng | Should | | Cần cho vòng đời thật, nhưng demo không bắt buộc | US-07; Q-48 | 5 |
+| US-09 Kết thúc (thanh lý), gia hạn hợp đồng | Should | | Cần cho vòng đời thật, nhưng demo không bắt buộc. Phạm vi tăng khi chốt thanh lý ngày 18/11/2026: ước lượng lại ở Planning | US-07, US-15 | 5 |
 | US-10 Yêu cầu thay đổi người ở | Should | | Có thể để Quản lý sửa trực tiếp trong MVP | US-08 | 5 |
 | US-11 Trạng thái khai báo tạm trú | Could | | Một trường trạng thái, giá trị nghiệp vụ thấp với demo | US-08 | 2 |
 | US-12 Xuất danh sách người ở | Could | | Dùng khi cần | US-08 | 2 |

@@ -17,10 +17,10 @@
 |---|---|---|---|
 | BR-01 | Mọi chức năng chỉ dùng được sau khi đăng nhập | [GT] | Đã chốt |
 | BR-02 | Có 5 vai trò: **Quản trị hệ thống, Chủ nhà, Quản lý, Kế toán, Người thuê**; một người có thể giữ **nhiều vai trò** | [QĐ Q-01] | Đã chốt |
-| BR-03 | **Không có tự đăng ký.** Quản trị hệ thống tạo tài khoản nhân viên; Quản lý tạo tài khoản người thuê khi nhập hợp đồng lên hệ thống | [QĐ Q-06] | Đã chốt |
+| BR-03 | **Không có tự đăng ký.** Quản trị hệ thống tạo tài khoản nhân viên; Quản lý tạo tài khoản người thuê khi nhập hợp đồng lên hệ thống. Người thuê cũ ký hợp đồng mới được cấp **tài khoản mới** và hồ sơ người ở mới; tên đăng nhập gợi ý đã tồn tại thì thêm hậu tố `.2`, `.3` | [QĐ Q-06; 18/11/2026] | Đã chốt |
 | BR-04 | Khi hợp đồng kết thúc, tài khoản người thuê chuyển **chỉ đọc trong 30 ngày** kể từ ngày kết thúc (đăng nhập, xem hóa đơn; không gửi yêu cầu), sau đó bị **khóa** | [QĐ Q-06; D-17] | Đã chốt |
 | BR-05 | Sai tên đăng nhập **hoặc** sai mật khẩu đều trả **cùng một** thông báo "Tài khoản hoặc mật khẩu không chính xác" | [C9] | Đã chốt |
-| BR-06 | Quên mật khẩu: Quản lý đặt lại, trừ tài khoản Quản trị hệ thống và Chủ nhà (do Quản trị hệ thống đặt lại); đặt lại qua email (Could) chỉ khi người dùng có email | [QĐ Q-07; API-D08] | Đã chốt |
+| BR-06 | Quên mật khẩu: Quản lý đặt lại cho tài khoản người thuê; tài khoản nhân viên do Quản trị hệ thống đặt lại [23/11/2026]; đặt lại qua email (Could) chỉ khi người dùng có email | [QĐ Q-07; API-D08] | Đã chốt |
 | BR-07 | Người thuê **chỉ xem** dữ liệu tài chính của phòng mình; **được gửi** yêu cầu sửa chữa, phản ánh, thay đổi người ở | [QĐ Q-02, Q-06, Q-32] | Đã chốt |
 | BR-08 | Kế toán chỉ truy cập dữ liệu tài chính; chỉ thấy tên người thuê và số phòng | [QĐ Q-05] | Đã chốt |
 | BR-09 | **Chỉ Quản lý** xem CCCD và thông tin cá nhân; Chủ nhà xem số liệu tổng hợp | [QĐ Q-45] | Đã chốt |
@@ -30,12 +30,13 @@
 | ID | Quy tắc | Nguồn | Trạng thái |
 |---|---|---|---|
 | BR-10 | Hệ thống quản lý **một tòa**. Phòng có mã phòng, tầng, diện tích, giá niêm yết, trạng thái (**trống / đang thuê / bảo trì**) | [QĐ Q-09, Q-10] | Đã chốt |
-| BR-11 | Một phòng tại một thời điểm có **tối đa một hợp đồng hiệu lực**; thời gian các hợp đồng của một phòng **không được giao nhau**. Hợp đồng có ngày bắt đầu trong tương lai thì phòng chỉ chuyển **đang thuê** từ ngày bắt đầu | [QĐ Q-09; 09/11/2026] | Đã chốt |
+| BR-11 | Một phòng tại một thời điểm có **tối đa một hợp đồng hiệu lực**; thời gian các hợp đồng của một phòng **không được giao nhau**. Hợp đồng có ngày bắt đầu trong tương lai thì phòng chỉ chuyển **đang thuê** từ ngày bắt đầu. Hợp đồng **hủy trước khi vào ở** (ngày kết thúc thực tế trước ngày bắt đầu) không giữ thời gian nào của phòng và hiển thị "Đã hủy" | [QĐ Q-09; 09/11/2026; 18/11/2026] | Đã chốt |
 | BR-12 | Hợp đồng được **ký giấy trước**, Quản lý **nhập lên hệ thống sau**. Thông tin gồm: số hợp đồng giấy (nếu có), ngày ký, phòng, người đứng tên, ngày bắt đầu, ngày kết thúc, tiền cọc, giá thuê, chỉ số điện nước bàn giao. **Gia hạn** ghi trên chính hợp đồng đó theo phụ lục (có thể đổi giá thuê từ ngày gia hạn), giữ nguyên tài khoản người thuê; **chuyển phòng** là kết thúc hợp đồng cũ và nhập hợp đồng mới (Q-53) | [QĐ Q-01; đề xuất được chấp nhận; 09/11/2026, 10/11/2026] | Đã chốt |
 | BR-13 | **Người đứng tên hợp đồng** chịu trách nhiệm thanh toán; người ở cùng được ghi trong danh sách người ở của phòng | [QĐ Q-11] | Đã chốt |
-| BR-14 | Thông tin người ở: họ tên, ngày sinh, giới tính, quê quán, SĐT, CCCD, quan hệ với người đứng tên, ngày vào ở, ngày rời đi, ghi chú. **Bắt buộc**: họ tên, ngày sinh, quê quán, CCCD | [QĐ Q-31] | Đã chốt |
+| BR-14 | Thông tin người ở: họ tên, ngày sinh, giới tính, quê quán, SĐT, CCCD, quan hệ với người đứng tên, ngày vào ở, ngày rời đi, ghi chú. **Bắt buộc**: họ tên, ngày sinh, quê quán, CCCD. CCCD không trùng với người ở khác trong cùng thời gian ở; ngày rời đi không tính là còn ở, nên chuyển phòng trong cùng một ngày vẫn hợp lệ | [QĐ Q-31; 18/11/2026] | Đã chốt |
 | BR-15 | Người thuê gửi yêu cầu thay đổi người ở (thêm người, người rời đi, sửa thông tin); **Quản lý duyệt** | [QĐ Q-32] | Đã chốt |
 | BR-16 | Hệ thống chỉ **ghi nhận** tình trạng khai báo tạm trú, không cấp | [QĐ Q-33] | Đã chốt |
+| BR-38 | **Thanh lý khi kết thúc hợp đồng.** Quản lý ghi chỉ số điện nước trả phòng và các khoản phát sinh (hư hỏng, phạt chấm dứt trước hạn theo hợp đồng). Hệ thống lập **hóa đơn thanh lý** gồm: tiền phòng và khoản cố định cho những ngày chưa có hóa đơn tháng, tính theo số ngày; điện nước từ chỉ số gần nhất đến chỉ số trả phòng; khoản phát sinh. Tiền cọc được **cấn trừ** vào hóa đơn thanh lý rồi các hóa đơn còn nợ khác của hợp đồng; phần còn lại trả người thuê. Cọc không đủ thì phần thiếu là công nợ. Khoản cấn trừ cọc không hủy được, sửa sai bằng phiếu điều chỉnh. Trả phòng sau khi hóa đơn tháng đã phát hành thì việc hoàn tiền ngày chưa ở (nếu hợp đồng quy định) làm bằng phiếu điều chỉnh | [QĐ Q-48, 18/11/2026] | Đã chốt |
 
 ### 1.3. Khoản thu, bảng giá, hóa đơn
 
@@ -79,7 +80,6 @@
 
 | Câu hỏi | Chủ đề | Mặc định tạm cho MVP | Ảnh hưởng |
 |---|---|---|---|
-| Q-48 | Tiền cọc khi trả phòng | Chưa xử lý tự động; Quản lý ghi chú khi kết thúc hợp đồng | US-09 |
 | Q-51 | Chỉ số công tơ sai | **Chặn** chỉ số mới nhỏ hơn chỉ số cũ; chỉ sửa được khi hóa đơn chưa phát hành | US-14 |
 | Q-54 | Loại khoản chi | Danh sách loại chi do Chủ nhà cấu hình | US-24 |
 | Q-55 | Trạng thái yêu cầu sửa chữa | Mới → Đang xử lý → Hoàn thành / Từ chối | US-31 |

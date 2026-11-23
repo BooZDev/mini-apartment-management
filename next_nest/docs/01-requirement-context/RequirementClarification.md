@@ -132,7 +132,7 @@ Phát sinh sau khi đổi bài toán. Nhóm quyết định trả lời khi phá
 
 | ID | Thông tin còn thiếu | Câu hỏi cần làm rõ | Vì sao quan trọng | Stakeholder | Ưu tiên | Câu trả lời / Quyết định | Status |
 |---|---|---|---|---|---|---|---|
-| Q-48 | Xử lý tiền cọc | Khi trả phòng, tiền cọc được hoàn hay khấu trừ (công nợ, hư hỏng) thế nào? Ai xác nhận? | Kết thúc hợp đồng, công nợ | CN, QL | TB | Mặc định tạm cho MVP: Chưa xử lý tự động; Quản lý ghi chú khi kết thúc hợp đồng | Open |
+| Q-48 | Xử lý tiền cọc | Khi trả phòng, tiền cọc được hoàn hay khấu trừ (công nợ, hư hỏng) thế nào? Ai xác nhận? | Kết thúc hợp đồng, công nợ | CN, QL | TB | Đã chốt 18/11/2026: khi kết thúc, Quản lý thanh lý: hệ thống lập hóa đơn thanh lý (tiền phòng ngày lẻ chưa có hóa đơn tháng, điện nước đến chỉ số trả phòng, khoản phát sinh); tiền cọc cấn trừ vào khoản còn nợ, phần còn lại trả người thuê (BR-38) | Answered |
 | Q-49 | Tháng lẻ ngày | Người thuê vào ở hoặc rời đi giữa tháng: tiền phòng tính theo số ngày hay tròn tháng? | Tính đúng hóa đơn | CN | TB | Tháng đầu của hợp đồng tính theo số ngày ở: tiền phòng và các khoản cố định hằng tháng = đơn giá × số ngày ở ÷ số ngày của tháng; điện nước theo chỉ số; người ở thêm giữa tháng tính từ kỳ sau; trả phòng giữa tháng xử lý khi thanh lý (Q-48). Nhóm chốt 10/11/2026. | Answered |
 | Q-50 | Lịch lập hóa đơn | Hóa đơn tháng lập vào ngày nào? Hạn thanh toán mặc định bao nhiêu ngày? | Trạng thái quá hạn, thông báo | CN, QL | TB | Kế toán lên lịch cho từng kỳ: tháng thu, ngày thu, hạn thanh toán. Không cố định ở đầu hay cuối tháng, tùy từng tòa (nhóm chốt 09/11/2026). | Answered |
 | Q-51 | Sai sót chỉ số công tơ | Chỉ số công tơ nhập sai, thay công tơ mới, chỉ số mới nhỏ hơn cũ: xử lý thế nào? | Tính đúng tiền điện, nước | QL | TB | Mặc định tạm cho MVP: Chặn chỉ số mới nhỏ hơn cũ; chỉ sửa được khi hóa đơn chưa phát hành | Open |
@@ -152,9 +152,9 @@ Phát sinh sau khi đổi bài toán. Nhóm quyết định trả lời khi phá
 
 | Trạng thái | Số câu | Ghi chú |
 |---|---|---|
-| Answered | 46 | Q-01…Q-46 (trừ 5 câu Không áp dụng), Q-47, Q-49, Q-50, Q-52 và Q-53 |
+| Answered | 47 | Q-01…Q-46 (trừ 5 câu Không áp dụng), Q-47, Q-48, Q-49, Q-50, Q-52 và Q-53 |
 | Không áp dụng | 5 | Q-03, Q-04 (không còn tổ dân phố, Tổ phó); Q-27, Q-28, Q-29 (không còn khoản đóng góp) |
-| Open | 9 | Q-48…Q-60 (trừ Q-49, Q-50, Q-52, Q-53), nhóm câu hỏi **để sau**; đều có mặc định tạm nên không chặn MVP |
+| Open | 8 | Q-51, Q-54…Q-60, nhóm câu hỏi **để sau**; đều có mặc định tạm nên không chặn MVP |
 | **Tổng** | **60** | |
 
 Toàn bộ 22 câu mức **Cao** ban đầu đã được trả lời hoặc xác định không áp dụng. Không còn câu hỏi nào **chặn** việc thiết kế.
