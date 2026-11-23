@@ -1,9 +1,9 @@
-# Thiết kế Cơ sở dữ liệu: Phân tích dữ liệu, ERD, Đặc tả Bảng & Ràng buộc Toàn vẹn
+# Thiết kế cơ sở dữ liệu
 
-> **Hệ quản trị CSDL đích**: PostgreSQL trên **Supabase**, dùng như CSDL có quản lý. NestJS kết nối trực tiếp bằng chuỗi kết nối; không dùng Supabase Auth và không đưa khóa của Supabase ra giao diện. Mọi bảng bật RLS và không tạo policy (từ chối mặc định), để API tự động của Supabase không đọc được dữ liệu.
-> **Sao lưu**: gói miễn phí của Supabase không có sao lưu tự động và tạm dừng dự án sau 7 ngày ít hoạt động. Tác vụ CI chạy `pg_dump` hằng ngày, lưu bản sao ngoài Supabase; tác vụ này cũng giữ cho dự án không bị tạm dừng.
-> **Múi giờ chuẩn**: `Asia/Ho_Chi_Minh` (`TIMESTAMPTZ`).
-> **Đơn vị tiền tệ**: Số nguyên đồng Việt Nam (`BIGINT` / `INTEGER`), không dùng số thực dấu phẩy động cho tiền tệ.
+> **CSDL**: PostgreSQL trên Supabase, chỉ dùng làm CSDL; NestJS kết nối trực tiếp, không dùng Supabase Auth. Mọi bảng bật RLS, không có policy.
+> **Sao lưu**: tác vụ CI chạy `pg_dump` hằng ngày, lưu ngoài Supabase (gói miễn phí không tự sao lưu và tạm dừng dự án sau 7 ngày ít hoạt động).
+> **Quy ước**: thời gian `TIMESTAMPTZ`, ngày nghiệp vụ theo `Asia/Ho_Chi_Minh`; tiền là số nguyên đồng. Số còn nợ, trạng thái hóa đơn do trigger tính (IR-08).
+> **Mã nguồn**: `supabase/migrations/`.
 
 ---
 
@@ -11,28 +11,30 @@
 
 ### 1. Danh mục Thực thể (`E01` đến `E20`)
 
-| Mã | Thực thể | Bảng vật lý tương ứng | Thuộc tính quan trọng & bổ sung |
+| Mã | Thực thể | Bảng | Ý nghĩa |
 |---|---|---|---|
-| **E01** | **Tài khoản** | `users` | Tên đăng nhập (`username`), mật khẩu băm (`password_hash`), họ tên (`full_name`), SĐT (`phone`), email (`email`), trạng thái khóa tay (`ACTIVE` / `LOCKED`; chế độ chỉ đọc và khóa sau 30 ngày của người thuê được tính khi đọc từ hợp đồng), bắt buộc đổi mật khẩu (`must_change_password`), phiên bản phiên (`session_version`), đăng nhập gần nhất (`last_login_at`) |
-| **E02** | **Vai trò của tài khoản** | `user_roles` | Liên kết nhiều-nhiều giữa tài khoản và 5 vai trò (`SYSTEM_ADMIN`, `OWNER`, `MANAGER`, `ACCOUNTANT`, `TENANT`), người gán (`assigned_by`), thời điểm gán (`assigned_at`) |
-| **E03** | **Tòa nhà / Cấu hình** | `building_settings` | Tên tòa (`building_name`), địa chỉ (`address`), ngày thu mặc định (`default_billing_day`: 1 đến 31), số ngày hạn thanh toán mặc định (`default_payment_term_days`: 0 đến 60), quy tắc làm tròn (`rounding_unit = 1000`, `rounding_mode = 'NEAREST'`), người cập nhật (`updated_by`) |
-| **E04** | **Phòng** | `rooms` | Mã phòng (`code`), tầng (`floor`), diện tích m² (`area_m2`), giá niêm yết (`listed_price`), cờ bảo trì (`is_under_maintenance`), ghi chú (`note`). *(Trạng thái hiển thị `VACANT` / `OCCUPIED` / `MAINTENANCE` được suy ra từ hợp đồng hiệu lực và `is_under_maintenance`)* |
-| **E05** | **Người ở** | `occupants` | Họ tên (`full_name`), ngày sinh (`date_of_birth`), giới tính (`gender`), quê quán (`hometown`), SĐT (`phone`), email (`email`), CCCD (`id_number`), tình trạng tạm trú (`residence_registration_status`), tài khoản liên kết (`user_id`), cờ đã ẩn (`is_anonymized`), thời điểm ẩn (`anonymized_at`), ghi chú (`note`) |
-| **E06** | **Hợp đồng** | `contracts` | Phòng (`room_id`), người đứng tên (`primary_occupant_id`), tài khoản người thuê (`tenant_user_id`), số HĐ giấy (`contract_number`), ngày ký (`signed_on`), ngày bắt đầu (`start_date`), ngày kết thúc (`end_date`), giá thuê (`monthly_rent`), tiền cọc (`deposit`), chỉ số điện/nước bàn giao (`initial_electricity_reading`, `initial_water_reading`), ngày kết thúc thực tế (`ended_on`), ghi chú kết thúc & tiền cọc (`end_note`); trạng thái `UPCOMING` / `ACTIVE` / `ENDED` tính khi đọc từ `start_date`, `ended_on` |
-| **E07** | **Người ở theo hợp đồng** | `contract_occupants` | Hợp đồng (`contract_id`), người ở (`occupant_id`), là người đứng tên (`is_primary`), quan hệ với người đứng tên (`relationship_to_primary`), ngày vào ở (`move_in_date`), ngày rời đi (`move_out_date`), ghi chú (`note`) |
-| **E08** | **Khoản thu** | `charge_types` | Tên khoản thu (`name`), cách tính (`calculation_method`: `CONTRACT_RENT`, `METER`, `PER_PERSON`, `PER_ROOM`, `PER_VEHICLE`, `MANUAL`), loại công tơ (`meter_type`: `ELECTRICITY`, `WATER`), đơn vị tính (`unit`), bắt buộc hay tùy chọn (`is_mandatory`), đang dùng (`is_active`) |
-| **E09** | **Đơn giá** | `charge_prices` | Khoản thu (`charge_type_id`), đơn giá (`unit_price`), ngày bắt đầu hiệu lực (`effective_from`), đã dùng lập hóa đơn (`is_used`), người tạo (`created_by`), thời điểm tạo (`created_at`) |
-| **E10** | **Dịch vụ đăng ký của HĐ** | `contract_services` | Hợp đồng (`contract_id`), khoản thu tùy chọn (`charge_type_id`), số lượng (`quantity` ≥ 1), kỳ bắt đầu áp dụng (`from_period`), kỳ kết thúc áp dụng (`to_period`) |
-| **E11** | **Chỉ số công tơ** | `meter_readings` | Phòng (`room_id`), loại công tơ (`meter_type`), kỳ (`period`), chỉ số cũ (`previous_reading`), chỉ số mới (`current_reading`), sản lượng tiêu thụ (`consumption`), đã khóa (`is_locked`), người ghi (`recorded_by`), thời điểm ghi (`recorded_at`) |
-| **E12** | **Kỳ hóa đơn & Phát sinh** | `billing_periods`, `extra_charges` | Kỳ thu (`period`: `YYYY-MM`), ngày thu (`billing_date`), hạn thanh toán (`due_date`), người lên lịch (`created_by`); kèm bảng khoản phát sinh chờ phát hành (`extra_charges`: `period_id`, `room_id`, `contract_id`, `description`, `amount`, `note`) |
-| **E13** | **Hóa đơn** | `invoices` | Mã hóa đơn tự sinh (`code`: `HD-YYYYMM-Pxxx`), kỳ (`period_id`), phòng (`room_id`), hợp đồng (`contract_id`), tên người đứng tên đã chụp (`primary_tenant_name`), ngày thu (`billing_date`), hạn thanh toán (`due_date`), tổng trước làm tròn (`subtotal`), số tiền làm tròn (`rounding_amount`), tổng sau làm tròn (`total_amount`), tổng điều chỉnh (`adjustment_total`), tổng phải trả (`amount_due`), đã trả (`paid_amount`), còn nợ (`balance`), trạng thái (`UNPAID` / `PARTIALLY_PAID` / `PAID`), thời điểm & người phát hành (`issued_at`, `issued_by`) |
-| **E14** | **Dòng hóa đơn** | `invoice_lines` | Hóa đơn (`invoice_id`), khoản thu (`charge_type_id`, nullable), mô tả đã chụp (`description`), cách tính đã chụp (`calculation_method`), số lượng (`quantity`), đơn vị (`unit`), đơn giá (`unit_price`), thành tiền (`amount`), chỉ số cũ/mới (`previous_reading`, `current_reading`) |
-| **E15** | **Phiếu điều chỉnh** | `invoice_adjustments` | Hóa đơn (`invoice_id`), số tiền điều chỉnh (`amount` ≠ 0, dương/âm), lý do (`reason`), trạng thái (`PENDING` / `APPROVED` / `REJECTED`), người lập & thời điểm (`requested_by`, `requested_at`), người duyệt, thời điểm & ghi chú duyệt (`decided_by`, `decided_at`, `decision_note`) |
-| **E16** | **Thanh toán & Yêu cầu hủy** | `payments`, `payment_cancellation_requests` | Số biên lai (`receipt_number`: `BL-YYYYMM-xxxx`), hóa đơn (`invoice_id`), số tiền (`amount` > 0), hình thức (`CASH` / `BANK_TRANSFER`), mã tham chiếu CK (`reference_code`), người nộp (`payer_occupant_id`, `payer_name`), ngày nộp (`paid_on`), ghi chú (`note`), trạng thái (`VALID` / `PENDING_CANCELLATION` / `CANCELLED`), người thu (`recorded_by`, `recorded_at`), thông tin hủy & yêu cầu duyệt hủy |
-| **E17** | **Yêu cầu người thuê** | `tenant_requests` | Loại yêu cầu (`OCCUPANT_CHANGE` / `MAINTENANCE`), phòng (`room_id`), hợp đồng (`contract_id`), tiêu đề (`title`), mô tả (`description`), hành động biến động người ở (`occupant_change_action`: `ADD` / `MOVE_OUT` / `UPDATE`), người ở mục tiêu (`target_occupant_id`), dữ liệu đề xuất (`proposed_data` JSONB), ngày rời đi (`move_out_date`), trạng thái (`status`), người gửi (`submitted_by`, `submitted_at`), người xử lý (`handled_by`, `handled_at`, `response_note`) |
-| **E18** | **Loại chi & Khoản chi** | `expense_categories`, `expenses` | Danh mục loại chi (`name`, `is_active`) và khoản chi (`category_id`, `spent_on`, `amount` > 0, `description`, `recorded_by`, `recorded_at`) |
-| **E19** | **Thông báo** | `notifications` | Người nhận (`user_id`), loại (`INVOICE_ISSUED`, `INVOICE_DUE_SOON`, `INVOICE_OVERDUE`, `REQUEST_PROCESSED`), tiêu đề (`title`), nội dung (`message`), đối tượng liên quan (`related_type`, `related_id`), đã đọc (`is_read`, `read_at`), thời điểm tạo (`created_at`) |
-| **E20** | **Nhật ký** | `audit_logs` | Thời điểm (`occurred_at`), người thực hiện (`actor_id`, `actor_username`, `actor_full_name`), hành động (`action`), loại & ID thực thể (`entity_type`, `entity_id`), tóm tắt (`summary`), giá trị trước/sau (`before_data`, `after_data` JSONB), mã truy vết (`request_id`) |
+| **E01** | Tài khoản | `users`, `user_sessions` | Tài khoản nhân viên và người thuê; khóa tay lưu ở cột, chế độ chỉ đọc của người thuê tính khi đọc; mỗi lần đăng nhập là một phiên |
+| **E02** | Vai trò | `user_roles` | Một tài khoản nhân viên có nhiều vai trò; tài khoản người thuê chỉ có `TENANT` |
+| **E03** | Cấu hình tòa nhà | `building_settings` | Một dòng: tên tòa, lịch thu mặc định, quy tắc làm tròn 1.000 đ |
+| **E04** | Phòng | `rooms` | Mã, tầng, diện tích, giá niêm yết, cờ bảo trì; trạng thái trống, đang thuê suy ra từ hợp đồng |
+| **E05** | Người ở | `occupants` | Thông tin cá nhân, CCCD, tình trạng tạm trú; người đứng tên gắn với tài khoản người thuê |
+| **E06** | Hợp đồng | `contracts`, `contract_renewals` | Hợp đồng nhập từ bản giấy: thời hạn, giá thuê, tiền cọc, chỉ số bàn giao, thanh lý; các lần gia hạn |
+| **E07** | Người ở theo hợp đồng | `contract_occupants` | Thời gian ở của từng người theo hợp đồng, người đứng tên |
+| **E08** | Khoản thu | `charge_types` | Danh mục khoản thu và cách tính; bắt buộc hoặc đăng ký thêm |
+| **E09** | Đơn giá | `charge_prices` | Đơn giá theo ngày hiệu lực; đã dùng trong hóa đơn thì không sửa, xóa |
+| **E10** | Dịch vụ đăng ký | `contract_services` | Khoản thu không bắt buộc mà hợp đồng đăng ký, theo khoảng kỳ |
+| **E11** | Chỉ số công tơ | `meter_readings` | Chỉ số điện, nước của phòng theo kỳ; khóa sau khi phát hành hóa đơn |
+| **E12** | Kỳ hóa đơn, khoản phát sinh | `billing_periods`, `extra_charges` | Lịch thu của kỳ do Kế toán đặt; khoản phát sinh chờ phát hành |
+| **E13** | Hóa đơn | `invoices` | Hóa đơn tháng (`HD-YYYYMM-<phòng>`) và hóa đơn thanh lý (`TL-YYYYMMDD-<phòng>`); số tiền, số còn nợ, trạng thái |
+| **E14** | Dòng hóa đơn | `invoice_lines` | Giá trị chụp lại lúc phát hành, không tính lại khi bảng giá đổi |
+| **E15** | Phiếu điều chỉnh | `invoice_adjustments` | Tăng, giảm số phải trả của hóa đơn, phải được người khác duyệt |
+| **E16** | Thanh toán, yêu cầu hủy | `payments`, `payment_cancellation_requests` | Lần nộp tiền và biên lai (`BL-YYYYMM-xxxx`), cấn trừ tiền cọc; hủy phải được duyệt |
+| **E17** | Yêu cầu người thuê | `tenant_requests` | Yêu cầu thay đổi người ở (chờ duyệt) hoặc sửa chữa |
+| **E18** | Loại chi, khoản chi | `expense_categories`, `expenses` | Chi phí vận hành để tính lợi nhuận |
+| **E19** | Thông báo | `notifications` | Thông báo trong ứng dụng cho người thuê |
+| **E20** | Nhật ký | `audit_logs` | Thao tác về tiền, hợp đồng, tài khoản, xem và xuất CCCD; chỉ thêm |
+
+Bảng kỹ thuật: `idempotency_keys` (chống gửi lặp), `login_attempts` (đăng nhập sai).
 
 ---
 
@@ -41,6 +43,7 @@
 ```mermaid
 erDiagram
     users ||--|{ user_roles : "has (E01-E02)"
+    users ||--o{ user_sessions : "logs in (E01)"
     users |o--o| occupants : "linked to (E01-E05)"
     rooms ||--o{ contracts : "leased via (E04-E06)"
     occupants ||--o{ contracts : "primary tenant (E05-E06)"
@@ -150,6 +153,9 @@ erDiagram
         integer initial_water_reading
         date ended_on
         text end_note
+        integer final_electricity_reading
+        integer final_water_reading
+        bigint deposit_refund_amount
         uuid created_by FK
         timestamptz created_at
         timestamptz updated_at
@@ -219,7 +225,7 @@ erDiagram
         char period "YYYY-MM"
         integer previous_reading
         integer current_reading
-        integer consumption
+        integer consumption "generated"
         boolean is_locked
         uuid recorded_by FK
         timestamptz recorded_at
@@ -248,8 +254,9 @@ erDiagram
 
     invoices {
         uuid id PK
-        varchar code UK "HD-YYYYMM-Pxxx"
-        uuid period_id FK
+        varchar code UK "HD-YYYYMM-Pxxx | TL-YYYYMMDD-Pxxx"
+        varchar invoice_type "MONTHLY | SETTLEMENT"
+        uuid period_id FK "null khi SETTLEMENT"
         uuid room_id FK
         uuid contract_id FK
         varchar primary_tenant_name
@@ -302,7 +309,7 @@ erDiagram
         varchar receipt_number UK "BL-YYYYMM-xxxx"
         uuid invoice_id FK
         bigint amount "> 0"
-        varchar method "CASH | BANK_TRANSFER"
+        varchar method "CASH | BANK_TRANSFER | DEPOSIT"
         varchar reference_code
         uuid payer_occupant_id FK
         varchar payer_name
@@ -502,8 +509,12 @@ Lưu hợp đồng thuê phòng đã ký giấy được Quản lý nhập lên 
 | `deposit` | `BIGINT` | Có | `0` | Tiền đặt cọc (`deposit >= 0`) |
 | `initial_electricity_reading` | `INTEGER` | Không* | `NULL` | Chỉ số công tơ điện bàn giao lúc nhận phòng (`>= 0`); **bắt buộc khi có khoản thu `METER` loại điện đang dùng**, không có giá trị mặc định. Là chỉ số cũ của kỳ đầu tiên của hợp đồng |
 | `initial_water_reading` | `INTEGER` | Không* | `NULL` | Chỉ số công tơ nước bàn giao lúc nhận phòng (`>= 0`); **bắt buộc khi có khoản thu `METER` loại nước đang dùng**, không có giá trị mặc định. Là chỉ số cũ của kỳ đầu tiên của hợp đồng |
-| `ended_on` | `DATE` | Không | `NULL` | Ngày kết thúc thực tế. Trạng thái hợp đồng: `ENDED` nếu có giá trị; nếu không thì `UPCOMING` khi hôm nay trước `start_date`, còn lại `ACTIVE` |
+| `ended_on` | `DATE` | Không | `NULL` | Ngày kết thúc thực tế. Trạng thái hợp đồng: `ENDED` nếu có giá trị; nếu không thì `UPCOMING` khi hôm nay trước `start_date`, còn lại `ACTIVE`. Sớm hơn `start_date` khi hủy hợp đồng chưa hiệu lực; khi đó hợp đồng không chiếm thời gian nào của phòng (IR-01) |
+| `note` | `TEXT` | Không | `NULL` | Ghi chú khi nhập, sửa hợp đồng (tối đa 500 ký tự) |
 | `end_note` | `TEXT` | Không | `NULL` | Ghi chú khi kết thúc hợp đồng và xử lý tiền cọc |
+| `final_electricity_reading` | `INTEGER` | Không* | `NULL` | Chỉ số điện trả phòng, ghi khi thanh lý; bắt buộc khi kết thúc hợp đồng đang hiệu lực mà có khoản thu `METER` loại điện đang dùng; không nhỏ hơn chỉ số bàn giao |
+| `final_water_reading` | `INTEGER` | Không* | `NULL` | Chỉ số nước trả phòng, quy tắc như chỉ số điện |
+| `deposit_refund_amount` | `BIGINT` | Không | `NULL` | Số tiền cọc trả lại người thuê khi thanh lý (`0..deposit`); tiền cọc đã cấn trừ cộng số trả lại không vượt `deposit` (IR-12) |
 | `created_by` | `UUID` | Có | Không có | **FK** → `users(id)` |
 | `created_at` | `TIMESTAMPTZ` | Có | `NOW()` | Thời điểm nhập hợp đồng |
 | `updated_at` | `TIMESTAMPTZ` | Có | `NOW()` | Thời điểm cập nhật |
@@ -605,7 +616,7 @@ Lưu chỉ số điện, nước hằng tháng của từng phòng.
 | `period` | `CHAR(7)` | Có | Không có | Kỳ ghi chỉ số (`YYYY-MM`). **UK** trên bộ `(room_id, meter_type, period)` |
 | `previous_reading` | `INTEGER` | Có | Không có | Chỉ số cũ (`>= 0`): kỳ đầu tiên của hợp đồng lấy chỉ số bàn giao của hợp đồng; các kỳ sau lấy `current_reading` kỳ trước của phòng |
 | `current_reading` | `INTEGER` | Có | Không có | Chỉ số mới (`current_reading >= previous_reading`) |
-| `consumption` | `INTEGER` | Có | Không có | Sản lượng tiêu thụ (`consumption = current_reading - previous_reading`) |
+| `consumption` | `INTEGER` | Có | Tự tính | Cột sinh tự động `GENERATED ALWAYS AS (current_reading - previous_reading) STORED`; máy chủ không ghi |
 | `is_locked` | `BOOLEAN` | Có | `FALSE` | `TRUE` ngay khi hóa đơn của phòng trong kỳ `period` được phát hành (chặn sửa/xóa) |
 | `recorded_by` | `UUID` | Có | Không có | **FK** → `users(id)`. Quản lý ghi chỉ số |
 | `recorded_at` | `TIMESTAMPTZ` | Có | `NOW()` | Thời điểm ghi |
@@ -644,18 +655,19 @@ Lưu các khoản thu phát sinh nhập tay cho từng phòng trước khi phát
 ---
 
 ### 14. Bảng `invoices` (Thực thể E13: Hóa đơn tháng)
-Hóa đơn đã phát hành cho từng phòng theo kỳ.
+Hóa đơn tháng của từng phòng theo kỳ, và hóa đơn thanh lý lập khi kết thúc hợp đồng (IR-12).
 
 | Tên cột | Kiểu dữ liệu | Bắt buộc | Mặc định | Ràng buộc / Mô tả |
 |---|---|---|---|---|
 | `id` | `UUID` | Có | `gen_random_uuid()` | **PK** |
-| `code` | `VARCHAR(30)` | Có | Không có | **UK**. Mã hóa đơn tự sinh `HD-YYYYMM-<mã phòng>` (ví dụ `HD-202611-P101`) |
-| `period_id` | `UUID` | Có | Không có | **FK** → `billing_periods(id) ON DELETE RESTRICT`. **UK** trên `(room_id, period_id)` |
+| `code` | `VARCHAR(30)` | Có | Không có | **UK**. Mã tự sinh: hóa đơn tháng `HD-YYYYMM-<mã phòng>` (ví dụ `HD-202611-P101`); hóa đơn thanh lý `TL-YYYYMMDD-<mã phòng>` theo ngày kết thúc thực tế (ví dụ `TL-20261110-P101`) |
+| `invoice_type` | `VARCHAR(20)` | Có | `'MONTHLY'` | `MONTHLY` (hóa đơn tháng), `SETTLEMENT` (hóa đơn thanh lý, mỗi hợp đồng tối đa một) |
+| `period_id` | `UUID` | Điều kiện | `NULL` | **FK** → `billing_periods(id) ON DELETE RESTRICT`. Bắt buộc với `MONTHLY`, `NULL` với `SETTLEMENT`. **UK** trên `(room_id, period_id)` của hóa đơn tháng |
 | `room_id` | `UUID` | Có | Không có | **FK** → `rooms(id) ON DELETE RESTRICT` |
 | `contract_id` | `UUID` | Có | Không có | **FK** → `contracts(id) ON DELETE RESTRICT` |
 | `primary_tenant_name` | `VARCHAR(100)` | Có | Không có | Họ tên người đứng tên chụp tại thời điểm phát hành |
-| `billing_date` | `DATE` | Có | Không có | Ngày thu chụp từ kỳ hóa đơn |
-| `due_date` | `DATE` | Có | Không có | Hạn thanh toán chụp từ kỳ hóa đơn |
+| `billing_date` | `DATE` | Có | Không có | Ngày thu chụp từ kỳ hóa đơn; hóa đơn thanh lý: ngày kết thúc thực tế |
+| `due_date` | `DATE` | Có | Không có | Hạn thanh toán chụp từ kỳ hóa đơn; hóa đơn thanh lý: do Quản lý đặt, mặc định bằng ngày kết thúc thực tế |
 | `subtotal` | `BIGINT` | Có | Không có | Tổng tiền các dòng hóa đơn trước làm tròn (`>= 0`) |
 | `rounding_amount` | `INTEGER` | Có | `0` | Số tiền làm tròn (`total_amount - subtotal`, trong khoảng `-499..500`) |
 | `total_amount` | `BIGINT` | Có | Không có | Tổng hóa đơn sau làm tròn đến `1.000` đ (`total_amount >= 0`, chia hết cho `1000`) |
@@ -663,7 +675,7 @@ Hóa đơn đã phát hành cho từng phòng theo kỳ.
 | `amount_due` | `BIGINT` | Có | Không có | Tổng phải trả (`amount_due = total_amount + adjustment_total >= 0`) |
 | `paid_amount` | `BIGINT` | Có | `0` | Tổng tiền đã thanh toán (`VALID` + `PENDING_CANCELLATION`; `0 <= paid_amount <= amount_due`) |
 | `balance` | `BIGINT` | Có | Không có | Số tiền còn nợ (`balance = amount_due - paid_amount >= 0`) |
-| `status` | `VARCHAR(20)` | Có | `'UNPAID'` | `UNPAID` (`paid_amount = 0`), `PARTIALLY_PAID` (`0 < paid_amount < amount_due`), `PAID` (`balance = 0`). *(Trạng thái `OVERDUE` được tính khi đọc nếu `balance > 0` và `CURRENT_DATE > due_date`)* |
+| `status` | `VARCHAR(20)` | Có | `'UNPAID'` | `UNPAID` (`paid_amount = 0`), `PARTIALLY_PAID` (`0 < paid_amount < amount_due`), `PAID` (`balance = 0`). *(Trạng thái `OVERDUE` được tính khi đọc nếu `balance > 0` và `CURRENT_DATE > due_date`)*. Năm cột `adjustment_total`, `amount_due`, `paid_amount`, `balance`, `status` do trigger tự tính (IR-08) |
 | `issued_by` | `UUID` | Có | Không có | **FK** → `users(id)`. Quản lý phát hành |
 | `issued_at` | `TIMESTAMPTZ` | Có | `NOW()` | Thời điểm phát hành |
 
@@ -710,7 +722,7 @@ Lưu các phiếu điều chỉnh cộng/trừ tiền cho hóa đơn đã phát 
 ---
 
 ### 17. Bảng `payments` (Thực thể E16a: Giao dịch thanh toán & Biên lai)
-Ghi nhận các lần thu tiền một phần hoặc toàn bộ cho hóa đơn.
+Ghi nhận các lần thu tiền một phần hoặc toàn bộ cho hóa đơn, kể cả khoản cấn trừ tiền cọc khi thanh lý. Thanh toán không sửa nội dung, chỉ đổi trạng thái hủy.
 
 | Tên cột | Kiểu dữ liệu | Bắt buộc | Mặc định | Ràng buộc / Mô tả |
 |---|---|---|---|---|
@@ -718,7 +730,7 @@ Ghi nhận các lần thu tiền một phần hoặc toàn bộ cho hóa đơn.
 | `receipt_number` | `VARCHAR(30)` | Có | Không có | **UK**. Số biên lai tự sinh `BL-YYYYMM-<4 chữ số>` (ví dụ `BL-202611-0001`) |
 | `invoice_id` | `UUID` | Có | Không có | **FK** → `invoices(id) ON DELETE RESTRICT` |
 | `amount` | `BIGINT` | Có | Không có | Số tiền nộp (`amount > 0`) |
-| `method` | `VARCHAR(20)` | Có | Không có | Hình thức: `CASH` (tiền mặt), `BANK_TRANSFER` (chuyển khoản) |
+| `method` | `VARCHAR(20)` | Có | Không có | Hình thức: `CASH` (tiền mặt), `BANK_TRANSFER` (chuyển khoản), `DEPOSIT` (cấn trừ tiền cọc khi thanh lý; không hủy được, sửa sai bằng phiếu điều chỉnh) |
 | `reference_code` | `VARCHAR(50)` | Không | `NULL` | Mã giao dịch ngân hàng (khi `method = 'BANK_TRANSFER'`) |
 | `payer_occupant_id` | `UUID` | Không | `NULL` | **FK** → `occupants(id) ON DELETE RESTRICT` (`NULL` nếu chọn người nộp "Khác") |
 | `payer_name` | `VARCHAR(100)` | Có | Không có | Họ tên người nộp chụp lại trên biên lai |
@@ -854,16 +866,36 @@ Lưu dấu vết bất biến cho mọi thao tác về tiền, hợp đồng, t�
 ---
 
 ### 24. Bảng kỹ thuật `login_attempts` (Giới hạn đăng nhập sai)
-Đếm số lần đăng nhập sai theo **tên đăng nhập đã chuẩn hóa**, kể cả tên không tồn tại, để mọi tên đăng nhập bị chặn giống nhau sau 5 lần sai (không lộ tài khoản nào có thật). Theo mục 2.6 của tài liệu API.
+Đếm số lần đăng nhập sai theo cặp **tên đăng nhập, IP**, kể cả tên không tồn tại (không lộ tài khoản nào có thật). Chặn theo cặp để người biết tên đăng nhập không khóa được chủ tài khoản ở máy khác. Theo mục 2.6 của tài liệu API.
 
 | Tên cột | Kiểu dữ liệu | Bắt buộc | Mặc định | Ràng buộc / Mô tả |
 |---|---|---|---|---|
 | `username_normalized` | `VARCHAR(50)` | Có | Không có | **PK**. Tên đăng nhập đã bỏ khoảng trắng và chuyển chữ thường |
+| `client_ip` | `VARCHAR(64)` | Có | Không có | **PK**. IP người gọi; IPv6 gộp theo dải `/64` |
 | `failed_count` | `SMALLINT` | Có | `0` | Số lần sai liên tiếp trong cửa sổ 15 phút (`>= 0`) |
 | `first_failed_at` | `TIMESTAMPTZ` | Có | `NOW()` | Thời điểm sai đầu tiên của cửa sổ hiện tại |
 | `locked_until` | `TIMESTAMPTZ` | Không | `NULL` | Hết hạn tạm chặn (15 phút sau lần sai thứ 5) |
 
-Đăng nhập thành công thì xóa dòng của tên đăng nhập đó.
+Đăng nhập thành công thì xóa dòng của cặp tên đăng nhập, IP đó.
+
+---
+
+### 25. Bảng `user_sessions` (Thực thể E01: Phiên đăng nhập)
+Mỗi lần đăng nhập là một dòng; chỉ lưu mã băm của refresh token (mục 2.6, AUTH-05 của tài liệu API).
+
+| Tên cột | Kiểu dữ liệu | Bắt buộc | Mặc định | Ràng buộc / Mô tả |
+|---|---|---|---|---|
+| `id` | `UUID` | Có | `gen_random_uuid()` | **PK**. Mã phiên, nằm trong access token |
+| `user_id` | `UUID` | Có | Không có | **FK** → `users(id) ON DELETE CASCADE` |
+| `refresh_token_hash` | `CHAR(64)` | Có | Không có | Băm SHA-256 của refresh token hiện tại |
+| `previous_token_hash` | `CHAR(64)` | Không | `NULL` | Băm của token liền trước, để nhận ra token cũ bị dùng lại |
+| `rotated_at` | `TIMESTAMPTZ` | Không | `NULL` | Lần xoay vòng gần nhất |
+| `last_seen_at` | `TIMESTAMPTZ` | Có | `NOW()` | Lần hoạt động gần nhất, để tính 30 phút không hoạt động |
+| `expires_at` | `TIMESTAMPTZ` | Có | Không có | 12 giờ sau khi đăng nhập (`> created_at`) |
+| `revoked_at` | `TIMESTAMPTZ` | Không | `NULL` | Thời điểm hủy: đăng xuất, đổi hoặc đặt lại mật khẩu, khóa tài khoản, token cũ bị dùng lại |
+| `created_at` | `TIMESTAMPTZ` | Có | `NOW()` | Thời điểm đăng nhập |
+
+Dòng đã hết hạn hoặc đã hủy quá một ngày được tác vụ định kỳ xóa.
 
 ---
 
@@ -877,14 +909,18 @@ Lưu dấu vết bất biến cho mọi thao tác về tiền, hợp đồng, t�
 | **UK-02** | `rooms` | `code` | Toàn bảng (không phân biệt hoa/thường) | Mã phòng là duy nhất trong tòa nhà |
 | **UK-03** | `charge_types` | `name` | Toàn bảng (không phân biệt hoa/thường) | Tên khoản thu là duy nhất trong danh mục bảng giá |
 | **UK-04** | `charge_prices` | `(charge_type_id, effective_from)` | Toàn bảng | Mỗi khoản thu không được có 2 mức đơn giá trùng ngày bắt đầu hiệu lực |
+| **UK-05** | `charge_types` | `meter_type` | Chỉ áp dụng khi `calculation_method = 'METER'` và `is_active = true` | Mỗi loại công tơ (điện, nước) chỉ có một khoản thu đang dùng |
 | **UK-06** | `meter_readings` | `(room_id, meter_type, period)` | Toàn bảng | Mỗi phòng trong một kỳ chỉ có tối đa 1 bản ghi chỉ số điện và 1 bản ghi chỉ số nước |
 | **UK-07** | `billing_periods` | `period` | Toàn bảng | Mỗi tháng (`YYYY-MM`) chỉ có duy nhất 1 kỳ hóa đơn |
-| **UK-08** | `invoices` | `(room_id, period_id)` | Toàn bảng | Mỗi phòng trong một kỳ chỉ được phát hành tối đa 1 hóa đơn |
+| **UK-08** | `invoices` | `(room_id, period_id)` | Chỉ áp dụng khi `invoice_type = 'MONTHLY'` | Mỗi phòng trong một kỳ chỉ được phát hành tối đa 1 hóa đơn tháng |
 | **UK-09** | `invoices` | `code` | Toàn bảng | Mã hóa đơn (`HD-YYYYMM-Pxxx`) là duy nhất |
 | **UK-10** | `payments` | `receipt_number` | Toàn bảng | Số biên lai (`BL-YYYYMM-xxxx`) là duy nhất |
 | **UK-11** | `contract_occupants` | `contract_id` | Chỉ áp dụng khi `is_primary = true` | Mỗi hợp đồng chỉ có đúng 1 người đứng tên chính |
 | **UK-12** | `payment_cancellation_requests` | `payment_id` | Chỉ áp dụng khi `status = 'PENDING'` | Một giao dịch thanh toán tại một thời điểm chỉ có tối đa 1 yêu cầu hủy đang chờ duyệt |
 | **UK-13** | `contracts` | `contract_number` | Chỉ áp dụng khi `contract_number IS NOT NULL` | Số hợp đồng giấy (nếu có) là duy nhất |
+| **UK-14** | `charge_types` | `calculation_method` | Chỉ áp dụng khi `calculation_method = 'CONTRACT_RENT'` | Chỉ có một khoản "Tiền phòng" của hệ thống |
+| **UK-15** | `invoices` | `contract_id` | Chỉ áp dụng khi `invoice_type = 'SETTLEMENT'` | Mỗi hợp đồng có tối đa một hóa đơn thanh lý |
+| **UK-16** | `notifications` | `(related_id, type)` | Chỉ áp dụng khi `related_type = 'INVOICE'` | Mỗi hóa đơn chỉ có một thông báo cho mỗi loại, kể cả khi tác vụ định kỳ chạy lại |
 
 ---
 
@@ -895,18 +931,18 @@ Lưu dấu vết bất biến cho mọi thao tác về tiền, hợp đồng, t�
 | **CK-01** | `building_settings` | Bảng chỉ có duy nhất 1 bản ghi cấu hình tòa nhà (`id = 1`); ngày thu mặc định từ `1` đến `31`; số ngày hạn thanh toán từ `0` đến `60`; đơn vị làm tròn cố định là `1.000` đ. |
 | **CK-02** | `rooms` | Tầng (`floor`) từ `0` đến `100`; diện tích (`area_m2`) lớn hơn `0`; giá niêm yết (`listed_price`) không âm. |
 | **CK-03** | `occupants` | Khi bản ghi chưa bị ẩn (`is_anonymized = false`), bắt buộc phải có đủ 4 trường: Họ tên, Ngày sinh, Quê quán và Số CCCD gồm đúng 12 chữ số. Khi đã ẩn (`is_anonymized = true`), cho phép để trống Ngày sinh, Quê quán, CCCD, SĐT nhưng vẫn phải giữ Họ tên. |
-| **CK-04** | `contracts` | Ngày kết thúc (`end_date`) phải sau ngày bắt đầu (`start_date`); ngày kết thúc thực tế (`ended_on`) được phép trước `start_date` khi hủy hợp đồng chưa hiệu lực; giá thuê (`monthly_rent > 0`), tiền cọc (`deposit >= 0`) và chỉ số điện/nước bàn giao (`>= 0`). |
+| **CK-04** | `contracts` | Ngày kết thúc (`end_date`) phải sau ngày bắt đầu (`start_date`); ngày kết thúc thực tế (`ended_on`) được phép trước `start_date` khi hủy hợp đồng chưa hiệu lực; giá thuê (`monthly_rent > 0`), tiền cọc (`deposit >= 0`) và chỉ số điện/nước bàn giao (`>= 0`); ngày ký không sau hôm nay. Chỉ số trả phòng và số tiền cọc trả lại chỉ có khi hợp đồng đã kết thúc; chỉ số trả phòng không nhỏ hơn chỉ số bàn giao; số trả lại từ `0` đến `deposit`. |
 | **CK-05** | `contract_occupants` | Ngày rời đi (`move_out_date`, nếu có) phải lớn hơn hoặc bằng ngày vào ở (`move_in_date`). |
 | **CK-06** | `charge_types` | Độ dài tên khoản thu từ `1` đến `50` ký tự; trường loại công tơ (`meter_type`) bắt buộc có giá trị (`ELECTRICITY` hoặc `WATER`) khi và chỉ khi cách tính là theo chỉ số (`METER`). |
 | **CK-07** | `charge_prices` | Đơn giá (`unit_price`) là số nguyên từ `0` đến `1.000.000.000`. |
 | **CK-08** | `contract_services` | Số lượng đăng ký (`quantity`) phải `>= 1`; kỳ kết thúc áp dụng (`to_period`, nếu có) không được nhỏ hơn kỳ bắt đầu (`from_period`). |
-| **CK-09** | `meter_readings` | Chỉ số cũ (`previous_reading >= 0`), chỉ số mới không được nhỏ hơn chỉ số cũ (`current_reading >= previous_reading`), và sản lượng tiêu thụ luôn bằng `current_reading - previous_reading`. |
+| **CK-09** | `meter_readings` | Chỉ số cũ (`previous_reading >= 0`), chỉ số mới không được nhỏ hơn chỉ số cũ (`current_reading >= previous_reading`), và sản lượng tiêu thụ luôn bằng `current_reading - previous_reading`. Cột `consumption` là cột sinh tự động. |
 | **CK-10** | `billing_periods` | Hạn thanh toán (`due_date`) phải lớn hơn hoặc bằng ngày thu (`billing_date`); mã kỳ đúng định dạng `YYYY-MM`. |
 | **CK-11** | `extra_charges` | Số tiền phát sinh (`amount`) phải lớn hơn `0` và mô tả không được để trống. |
-| **CK-12** | `invoices` | Đảm bảo tính nhất quán các cột tiền trên hóa đơn:<br>• `total_amount = subtotal + rounding_amount` (trong đó `total_amount` chia hết cho `1.000`)<br>• `amount_due = total_amount + adjustment_total >= 0`<br>• `0 <= paid_amount <= amount_due` (không thu vượt số phải trả)<br>• `balance = amount_due - paid_amount >= 0` |
+| **CK-12** | `invoices` | Đảm bảo tính nhất quán các cột tiền trên hóa đơn:<br>• `total_amount = subtotal + rounding_amount` (trong đó `total_amount` chia hết cho `1.000`)<br>• `amount_due = total_amount + adjustment_total >= 0`<br>• `0 <= paid_amount <= amount_due` (không thu vượt số phải trả)<br>• `balance = amount_due - paid_amount >= 0`<br>• `total_amount` là `subtotal` làm tròn gần nhất đến `1.000` (`rounding_amount` từ `-499` đến `500`)<br>• `status` khớp số tiền: `PAID` khi `balance = 0`, `PARTIALLY_PAID` khi đã trả một phần, còn lại `UNPAID`<br>• `MONTHLY` có `period_id`, `SETTLEMENT` không có |
 | **CK-13** | `invoice_lines` | Số lượng (`quantity >= 0`), đơn giá (`unit_price >= 0`), thành tiền `amount = quantity × unit_price`, riêng dòng tính theo ngày thì `amount` = làm tròn(`quantity × unit_price × days_charged / days_in_period`) với `1 <= days_charged <= days_in_period`; nếu dòng tính theo chỉ số (`METER`) thì bắt buộc có cả `previous_reading` và `current_reading`. |
 | **CK-14** | `invoice_adjustments` | Số tiền điều chỉnh (`amount`) khác `0`; lý do không được để trống; khi duyệt (`status = 'APPROVED'`), người duyệt (`decided_by`) phải khác người lập phiếu (`requested_by`); người lập phiếu được tự từ chối (rút) phiếu của mình. |
-| **CK-15** | `payments` | Số tiền thanh toán (`amount`) lớn hơn `0`; tên người nộp (`payer_name`) không được để trống. |
+| **CK-15** | `payments` | Số tiền thanh toán (`amount`) lớn hơn `0`; tên người nộp (`payer_name`) không được để trống. Hình thức là `CASH`, `BANK_TRANSFER` hoặc `DEPOSIT`. |
 | **CK-16** | `payment_cancellation_requests` | Lý do yêu cầu hủy không được để trống; khi duyệt, người duyệt hủy (`decided_by`) phải khác người gửi yêu cầu (`requested_by`); người gửi được tự từ chối (rút) yêu cầu của mình. |
 | **CK-17** | `expenses` | Số tiền chi (`amount`) phải lớn hơn `0`. |
 
@@ -916,15 +952,16 @@ Lưu dấu vết bất biến cho mọi thao tác về tiền, hợp đồng, t�
 
 | Mã | Quy tắc toàn vẹn | Bảng liên quan | Mô tả chi tiết |
 |---|---|---|---|
-| **IR-01** | **Không giao thời gian hợp đồng của cùng một phòng** | `rooms`, `contracts` | Khoảng thời gian hiệu lực `[start_date, COALESCE(ended_on, end_date)]` của hai hợp đồng bất kỳ thuộc cùng một phòng không được chồng lấn nhau. Tại một thời điểm, một phòng chỉ có tối đa 1 hợp đồng ở trạng thái `ACTIVE`. |
+| **IR-01** | **Không giao thời gian hợp đồng của cùng một phòng** | `rooms`, `contracts` | Khoảng thời gian hiệu lực `[start_date, COALESCE(ended_on, end_date)]` của hai hợp đồng bất kỳ thuộc cùng một phòng không được chồng lấn nhau. Tại một thời điểm, một phòng chỉ có tối đa 1 hợp đồng ở trạng thái `ACTIVE`. Hai đầu khoảng đều tính, nên hợp đồng mới phải bắt đầu sau ngày kết thúc của hợp đồng trước. Hợp đồng hủy trước khi vào ở (`ended_on < start_date`) không chiếm thời gian nào. Bảo đảm bằng ràng buộc loại trừ `contracts_period_overlap`. |
 | **IR-02** | **Đồng bộ trạng thái phòng và hợp đồng** | `rooms`, `contracts` | Không cho phép đặt cờ bảo trì (`is_under_maintenance = true`) hoặc chuyển phòng về trạng thái trống khi phòng đang có hợp đồng `ACTIVE` hoặc `UPCOMING`. Hợp đồng có `start_date` trong tương lai (`UPCOMING`) thì phòng vẫn giữ trạng thái trống cho tới ngày `start_date`. |
 | **IR-03** | **Số người ở tối thiểu của hợp đồng** | `contracts`, `contract_occupants` | Mỗi hợp đồng đang hiệu lực phải luôn có ít nhất 1 người ở đang cư trú (`move_out_date IS NULL`). Không cho phép xóa hoặc ghi nhận rời đi đối với người ở cuối cùng (hoặc người đứng tên duy nhất) khi chưa kết thúc hợp đồng. |
 | **IR-04** | **Tách biệt vai trò người thuê và nhân viên** | `users`, `user_roles` | Một tài khoản nhân viên có thể giữ một hoặc nhiều vai trò (`SYSTEM_ADMIN`, `OWNER`, `MANAGER`, `ACCOUNTANT`), nhưng tài khoản người thuê chỉ được giữ duy nhất vai trò `TENANT`. |
 | **IR-05** | **Vòng đời tài khoản người thuê sau khi kết thúc HĐ** | `contracts`, `users` | Khi hợp đồng kết thúc (`ended_on` có giá trị), tài khoản người thuê ở chế độ chỉ đọc trong 30 ngày kể từ `ended_on` (chỉ được xem dữ liệu, không được gửi yêu cầu mới); sau đó bị từ chối đăng nhập như `LOCKED`. Trạng thái này **tính khi đọc**, không cần tác vụ định kỳ. |
 | **IR-06** | **Liên tục chỉ số công tơ giữa các kỳ & khóa sau phát hành** | `contracts`, `meter_readings`, `invoices` | Chỉ số cũ (`previous_reading`) của kỳ hiện tại phải bằng chỉ số mới (`current_reading`) của kỳ liền trước (hoặc bằng chỉ số bàn giao của hợp đồng nếu là kỳ đầu tiên của hợp đồng, kể cả khi phòng đã có chỉ số của người thuê trước). Khi hóa đơn của phòng trong kỳ đã phát hành, bản ghi chỉ số bị khóa (`is_locked = true`), không cho phép sửa/xóa. |
 | **IR-07** | **Bảo toàn dữ liệu lịch sử bảng giá, hợp đồng và dòng hóa đơn** | `charge_prices`, `contracts`, `invoices`, `invoice_lines` | • Đơn giá đã dùng lập hóa đơn (`is_used = true`) không được sửa hoặc xóa.<br>• Hợp đồng đã phát sinh hóa đơn không được sửa `start_date`, `room_id`, `monthly_rent`, `initial_electricity_reading`, `initial_water_reading`.<br>• Dòng hóa đơn (`invoice_lines`) lưu giá trị đã chụp cứng tại thời điểm phát hành, không tham chiếu ngược để tính lại khi đổi bảng giá hoặc biến động người ở. |
-| **IR-08** | **Toàn vẹn công nợ khi ghi nhận đồng thời** | `invoices`, `payments`, `invoice_adjustments` | Mọi thao tác ghi nhận thanh toán, duyệt phiếu điều chỉnh hoặc duyệt hủy thanh toán phải khóa bản ghi hóa đơn và kiểm tra lại số còn nợ (`balance`) ngay tại thời điểm lưu để đảm bảo không thu vượt số nợ và không làm tổng phải trả nhỏ hơn số đã thu. |
+| **IR-08** | **Số còn nợ tính từ một nguồn, an toàn khi ghi đồng thời** | `invoices`, `payments`, `invoice_adjustments` | Trigger tính lại `adjustment_total` (tổng phiếu `APPROVED`), `amount_due`, `paid_amount` (tổng thanh toán `VALID`, `PENDING_CANCELLATION`), `balance`, `status` sau mỗi lần thêm thanh toán, đổi trạng thái thanh toán, thêm hoặc duyệt phiếu điều chỉnh; máy chủ không ghi các cột này. Trigger khóa dòng hóa đơn trước khi kiểm tra và cộng, nên khi hai người ghi cùng lúc thì người sau thấy số mới: hóa đơn đã trả đủ thì báo `INVOICE_ALREADY_PAID`, nộp vượt thì `AMOUNT_EXCEEDS_BALANCE`, điều chỉnh làm số phải trả nhỏ hơn số đã trả thì `ADJUSTMENT_BELOW_PAID`. |
 | **IR-09** | **Ràng buộc thời gian thực tế của giao dịch tài chính** | `payments`, `expenses` | Ngày nộp tiền (`paid_on`) và ngày chi (`spent_on`) không được lớn hơn ngày hiện tại theo múi giờ Việt Nam (`Asia/Ho_Chi_Minh`). |
-| **IR-10** | **Bất biến dữ liệu tài chính & bắt buộc ghi nhật ký** | Toàn bộ bảng tài chính, `occupants`, `audit_logs` | Không xóa vật lý (`DELETE`) đối với tài khoản, hợp đồng, hóa đơn, phiếu điều chỉnh, thanh toán, yêu cầu và nhật ký. Mọi thao tác thay đổi dữ liệu tiền, hợp đồng, tài khoản và việc xem/xuất CCCD đều phải sinh bản ghi `audit_logs` trong cùng giao dịch. |
-| **IR-11** | **CCCD không trùng trong cùng thời gian ở** | `occupants`, `contract_occupants` | Số CCCD của người ở mới không được trùng với người ở khác có khoảng `[move_in_date, move_out_date]` giao nhau. Người đã rời đi (kể cả chưa bị ẩn dữ liệu) vẫn được nhập lại cho hợp đồng mới. |
+| **IR-10** | **Bất biến dữ liệu tài chính & bắt buộc ghi nhật ký** | Toàn bộ bảng tài chính, `occupants`, `audit_logs` | Không xóa vật lý (`DELETE`) đối với tài khoản, hợp đồng, hóa đơn, phiếu điều chỉnh, thanh toán, yêu cầu và nhật ký. Mọi thao tác thay đổi dữ liệu tiền, hợp đồng, tài khoản và việc xem/xuất CCCD đều phải sinh bản ghi `audit_logs` trong cùng giao dịch. Không sửa: nhật ký, dòng hóa đơn, lần gia hạn; nội dung hóa đơn đã phát hành (chỉ các cột tự tính của IR-08 thay đổi); nội dung thanh toán (chỉ đổi trạng thái hủy); phiếu điều chỉnh và yêu cầu hủy đã xử lý. |
+| **IR-11** | **CCCD không trùng trong cùng thời gian ở** | `occupants`, `contract_occupants` | Số CCCD của người ở mới không được trùng với người ở khác có khoảng `[move_in_date, move_out_date]` giao nhau. Người đã rời đi (kể cả chưa bị ẩn dữ liệu) vẫn được nhập lại cho hợp đồng mới. Ngày rời đi không tính là còn ở, nên người trả phòng này và nhận phòng khác trong cùng một ngày vẫn hợp lệ. |
+| **IR-12** | **Thanh lý hợp đồng và tiền cọc** | `contracts`, `invoices`, `payments` | Khi kết thúc hợp đồng, máy chủ ghi chỉ số trả phòng và lập tối đa một hóa đơn thanh lý (`SETTLEMENT`) gồm: tiền phòng và khoản cố định cho những ngày chưa có hóa đơn tháng, tính theo số ngày; điện nước từ chỉ số gần nhất đến chỉ số trả phòng; khoản phát sinh (hư hỏng, phạt chấm dứt trước hạn). Tiền cọc được cấn trừ vào hóa đơn thanh lý trước, rồi các hóa đơn còn nợ khác của hợp đồng theo hạn sớm nhất, mỗi lần là một thanh toán `DEPOSIT`; phần còn lại ghi vào `deposit_refund_amount`. Tổng cấn trừ cộng số trả lại không vượt `deposit` (`DEPOSIT_EXCEEDED`); thanh toán `DEPOSIT` không hủy được (`PAYMENT_NOT_CANCELLABLE`). Cọc không đủ thì phần thiếu vẫn là công nợ của hợp đồng. |
 

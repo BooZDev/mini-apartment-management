@@ -121,11 +121,13 @@ Nguồn chuẩn là `report/us/detailed/us-xx.md` (dữ liệu nền, Given, Whe
 |  | AC-07-06 | Alternative (Nhập bù hợp đồng đã ký và bắt đầu trong quá khứ) |  |
 |  | AC-07-07 | Conflict (Sửa hợp đồng trước và sau khi có hóa đơn) |  |
 |  | AC-07-08 | Phân quyền |  |
+|  | AC-07-09 | Alternative (Người thuê cũ quay lại, tên đăng nhập gợi ý đã tồn tại) |  |
 | **US-08** Người ở | AC-08-01 | Happy Path (Thêm người ở đủ thông tin) | `us-08.md`, `tc-08.md` |
 |  | AC-08-02 | Exception (Thiếu CCCD hoặc trường bắt buộc) |  |
 |  | AC-08-03 | Exception (Sai định dạng hoặc trùng CCCD trong cùng thời gian) |  |
 |  | AC-08-04 | Alternative (Ghi nhận người rời đi & ẩn sau 1 năm) |  |
 |  | AC-08-05 | Phân quyền & Bảo mật dữ liệu cá nhân |  |
+|  | AC-08-06 | Boundary (Rời phòng này, vào phòng khác cùng ngày) |  |
 | **US-10** Yêu cầu thay đổi người ở | AC-10-01 | Happy Path (Gửi yêu cầu thêm người) | `us-10.md`, `tc-10.md` |
 |  | AC-10-02 | Happy Path (Duyệt yêu cầu) |  |
 |  | AC-10-03 | Exception (Thiếu dữ liệu) |  |
@@ -165,6 +167,11 @@ Nguồn chuẩn là `report/us/detailed/us-xx.md` (dữ liệu nền, Given, Whe
 | **US-09** Kết thúc, gia hạn hợp đồng | AC-09-01 | Hợp đồng P101 đến 30/11/2026; Quản lý gia hạn đến 30/11/2027 theo phụ lục PL-01 ký 25/11/2026 | Vẫn là hợp đồng cũ, ngày kết thúc mới 30/11/2027; tài khoản người thuê giữ nguyên; ghi nhật ký | BR-12 |
 | | AC-09-02 | Phòng P101 đã có hợp đồng của người thuê mới bắt đầu 01/12/2026; Quản lý gia hạn hợp đồng cũ đến 31/12/2026 | Không lưu; báo thời gian trùng với hợp đồng khác của phòng | BR-11 |
 | | AC-09-03 | Gia hạn kèm giá thuê mới 3.200.000 đ từ 01/12/2026 | Hóa đơn kỳ 11 vẫn 3.000.000 đ tiền phòng; từ kỳ 12 là 3.200.000 đ | BR-12, BR-19 |
+| | AC-09-04 | Thanh lý: phòng P105, giá thuê 3.000.000 đ, tiền cọc 3.000.000 đ, 2 người, wifi, 1 xe máy; hóa đơn kỳ 10 đã trả đủ, chỉ số kỳ 10: điện 1.350, nước 48. Quản lý kết thúc ngày 10/11/2026, chỉ số trả phòng điện 1.400, nước 50, phát sinh "Sửa vòi nước" 150.000 đ | Hóa đơn thanh lý `TL-20261110-P105`: tiền phòng 1.000.000, wifi 33.333, vệ sinh 20.000, gửi xe 33.333 (đều 10/30 ngày), điện 50 × 3.456 = 172.800, nước 2 × 25.000 = 50.000, sửa vòi 150.000; tổng 1.459.466, làm tròn **1.459.000**. Cấn trừ cọc 1.459.000, trả lại **1.541.000**. Hợp đồng kết thúc, phòng trống, tài khoản người thuê chỉ đọc 30 ngày | BR-38, BR-21, BR-22, BR-04 |
+| | AC-09-05 | Cọc không đủ: như AC-09-04 nhưng phát sinh "Thay cửa hỏng" 2.000.000 đ (không có sửa vòi) và hóa đơn kỳ 10 còn nợ 1.000.000 đ | Hóa đơn thanh lý 3.309.466, làm tròn **3.309.000**. Cấn trừ toàn bộ 3.000.000 tiền cọc vào hóa đơn thanh lý; hóa đơn thanh lý còn nợ 309.000, hóa đơn kỳ 10 còn nợ 1.000.000; công nợ của hợp đồng **1.309.000**, không trả lại cọc | BR-38, BR-32 |
+| | AC-09-06 | Hợp đồng P105 đang hiệu lực; Quản lý kết thúc nhưng bỏ trống chỉ số nước trả phòng | Không lưu; báo chỉ rõ thiếu chỉ số nước trả phòng | BR-38 |
+| | AC-09-07 | Hóa đơn kỳ 11 của P105 đã phát hành (chỉ số kỳ 11: điện 1.420, nước 50); kết thúc ngày 28/11/2026, chỉ số trả phòng điện 1.430, nước 50 | Hóa đơn thanh lý **không có** dòng tiền phòng và khoản cố định; chỉ có điện 10 × 3.456 = 34.560, tổng làm tròn **35.000**. Nếu hợp đồng quy định hoàn tiền ngày chưa ở thì Kế toán lập phiếu điều chỉnh giảm cho hóa đơn kỳ 11 | BR-38, BR-25 |
+| | AC-09-08 | Hợp đồng P106 bắt đầu 20/12/2026, tiền cọc 3.000.000 đ; ngày 18/11/2026 người thuê hủy, không có khoản phát sinh | Hợp đồng kết thúc ngày 18/11/2026, không cần chỉ số trả phòng, không lập hóa đơn thanh lý; trả lại toàn bộ 3.000.000 tiền cọc; phòng P106 nhận được hợp đồng khác ngay, kể cả trong khoảng 20/12 đến hết hạn cũ | BR-38, BR-11 |
 | **US-04** Tạo tài khoản nhân viên | AC-04-01 | Quản trị hệ thống tạo tài khoản, gán vai trò Quản lý + Kế toán | Tài khoản có cả hai vai trò | BR-02, BR-03 |
 | | AC-04-02 | Tên đăng nhập đã tồn tại | Không tạo; báo lỗi | – |
 | | AC-04-03 | Người dùng không có vai trò Quản trị hệ thống thử tạo tài khoản | Bị từ chối | BR-03 |

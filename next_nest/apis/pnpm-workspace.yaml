@@ -1,0 +1,7 @@
+# Không cho chạy script cài đặt của các gói này:
+# - @parcel/watcher, unrs-resolver đã có bản dựng sẵn theo nền tảng (gói optional).
+# - @scarf/scarf (kéo theo bởi swagger-ui-dist) chỉ gửi số liệu thống kê ra ngoài.
+allowBuilds:
+  '@parcel/watcher': false
+  '@scarf/scarf': false
+  unrs-resolver: false
