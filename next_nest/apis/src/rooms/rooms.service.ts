@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, EntityManager } from 'typeorm';
+import { AuditLogsService } from 'src/audit-logs/audit-logs.service';
+import { RequestContext } from 'src/common/decorators/request-context.decorator';
 import {
   definedOnly,
   lockRow,
@@ -12,7 +14,7 @@ import { Paginated } from 'src/common/dto/paginated.dto';
 import { AppException } from 'src/common/exceptions/app.exception';
 import { toVnDateTime, vnToday } from 'src/common/utils/date.util';
 import { buildOrderBy } from 'src/common/utils/sort.util';
-import { likeContains } from 'src/common/utils/text.util';
+import { formatMoney, likeContains } from 'src/common/utils/text.util';
 import { Room } from 'src/entities/room.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { FindRoomsDto } from './dto/find-rooms.dto';
@@ -86,7 +88,10 @@ const SORT_FIELDS = {
 
 @Injectable()
 export class RoomsService {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   // ROOM-01 Danh sách phòng
   async findAll(query: FindRoomsDto) {
@@ -121,19 +126,36 @@ export class RoomsService {
   }
 
   // ROOM-02 Thêm phòng
-  async create(dto: CreateRoomDto) {
-    const { identifiers } = await this.dataSource.getRepository(Room).insert({
-      code: dto.code,
-      floor: dto.floor,
-      areaM2: dto.areaM2,
-      listedPrice: dto.listedPrice,
-      note: dto.note ?? null,
+  async create(dto: CreateRoomDto, ctx: RequestContext) {
+    return this.dataSource.transaction(async (manager) => {
+      const { identifiers } = await manager.getRepository(Room).insert({
+        code: dto.code,
+        floor: dto.floor,
+        areaM2: dto.areaM2,
+        listedPrice: dto.listedPrice,
+        note: dto.note ?? null,
+      });
+      const id = identifiers[0].id as string;
+      await this.auditLogsService.log(manager, ctx, {
+        action: 'ROOM_CREATED',
+        entityType: 'ROOM',
+        entityId: id,
+        summary: `Thêm phòng ${dto.code} (tầng ${dto.floor}, ${dto.areaM2} m², giá ${formatMoney(dto.listedPrice)})`,
+        after: {
+          code: dto.code,
+          floor: dto.floor,
+          areaM2: dto.areaM2,
+          listedPrice: dto.listedPrice,
+          isUnderMaintenance: false,
+          note: dto.note ?? null,
+        },
+      });
+      return this.findOne(id, manager);
     });
-    return this.findOne(identifiers[0].id as string);
   }
 
   // ROOM-04 Sửa phòng, đặt hoặc bỏ bảo trì
-  async update(id: string, dto: UpdateRoomDto) {
+  async update(id: string, dto: UpdateRoomDto, ctx: RequestContext) {
     if (dto.status !== undefined) throw new AppException('READ_ONLY_FIELD', [
       { field: 'status', code: 'READ_ONLY_FIELD', message: 'Trạng thái phòng do hợp đồng quyết định' },
     ]);
@@ -167,6 +189,29 @@ export class RoomsService {
       });
       if (Object.keys(changes).length > 0) {
         await manager.getRepository(Room).update({ id }, changes);
+        const afterCode = dto.code ?? room.code;
+        await this.auditLogsService.log(manager, ctx, {
+          action: 'ROOM_UPDATED',
+          entityType: 'ROOM',
+          entityId: id,
+          summary: `Cập nhật phòng ${afterCode}`,
+          before: {
+            code: room.code,
+            floor: room.floor,
+            areaM2: room.areaM2,
+            listedPrice: room.listedPrice,
+            isUnderMaintenance: room.isUnderMaintenance,
+            note: room.note,
+          },
+          after: {
+            code: afterCode,
+            floor: dto.floor ?? room.floor,
+            areaM2: dto.areaM2 ?? room.areaM2,
+            listedPrice: dto.listedPrice ?? room.listedPrice,
+            isUnderMaintenance: dto.isUnderMaintenance ?? room.isUnderMaintenance,
+            note: dto.note !== undefined ? dto.note : room.note,
+          },
+        });
       }
       return this.findOne(id, manager);
     });
