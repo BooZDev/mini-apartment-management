@@ -2,7 +2,6 @@ import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/role.decorator';
 import { Role } from 'src/auth/enums/role.enum';
-import { ReqCtx, type RequestContext } from 'src/common/decorators/request-context.decorator';
 import { ParseIdPipe } from 'src/common/pipes/parse-id.pipe';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { FindRoomsDto } from './dto/find-rooms.dto';
@@ -31,8 +30,8 @@ export class RoomsController {
   @Post()
   @ApiOperation({ summary: 'Thêm phòng', description: 'ROOM-02. Cần quyền MANAGER' })
   @ApiBody({ type: CreateRoomDto })
-  create(@Body() dto: CreateRoomDto, @ReqCtx() ctx: RequestContext) {
-    return this.roomsService.create(dto, ctx);
+  create(@Body() dto: CreateRoomDto) {
+    return this.roomsService.create(dto);
   }
 
   // ROOM-03 Chi tiết phòng
@@ -53,7 +52,7 @@ export class RoomsController {
   })
   @ApiParam({ name: 'roomId', description: 'ID phòng' })
   @ApiBody({ type: UpdateRoomDto })
-  update(@Param('roomId', ParseIdPipe) roomId: string, @Body() dto: UpdateRoomDto, @ReqCtx() ctx: RequestContext) {
-    return this.roomsService.update(roomId, dto, ctx);
+  update(@Param('roomId', ParseIdPipe) roomId: string, @Body() dto: UpdateRoomDto) {
+    return this.roomsService.update(roomId, dto);
   }
 }
