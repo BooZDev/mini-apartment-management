@@ -3,6 +3,7 @@
 import { ForbiddenView } from "@/components/auth/forbidden-view"
 import { QuickLoginCard } from "@/components/auth/quick-login-card"
 import { AppShell, type Crumb } from "@/components/layout/app-shell"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -11,7 +12,12 @@ import { errorMessage, errorStatus } from "@/lib/api"
 import type { User } from "@/lib/types/auth"
 
 function CenteredPage({ children }: { children: React.ReactNode }) {
-  return <div className="flex min-h-svh flex-1 items-center justify-center p-4">{children}</div>
+  return (
+    <div className="relative flex min-h-svh flex-1 items-center justify-center p-4">
+      <ThemeToggle className="absolute top-4 right-4" />
+      {children}
+    </div>
+  )
 }
 
 /**
