@@ -120,8 +120,8 @@ export function RoomDetailDialog({
             )}
 
             {room.upcomingContract && (
-              <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-3.5">
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-sky-900">
+              <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-3.5 dark:border-sky-400/30 dark:bg-sky-400/10">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-sky-900 dark:text-sky-200">
                   <FileText className="size-3.5" />
                   Hợp đồng sắp hiệu lực
                 </p>

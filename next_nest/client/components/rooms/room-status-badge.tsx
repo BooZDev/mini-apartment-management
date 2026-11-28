@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 const STATUS_STYLES: Record<RoomStatus, string> = {
   OCCUPIED: "border-primary/20 bg-secondary text-primary",
   VACANT: "border-border bg-card text-muted-foreground",
-  MAINTENANCE: "border-amber-200 bg-amber-100 text-amber-900",
+  MAINTENANCE: "border-amber-200 bg-amber-100 text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/15 dark:text-amber-200",
 }
 
 export function RoomStatusBadge({
@@ -28,7 +28,7 @@ export function RoomStatusBadge({
       {hasUpcomingContract && (
         <Badge
           variant="outline"
-          className="h-6 rounded-md border-sky-200 bg-sky-50 px-2 text-[11px] font-medium text-sky-800"
+          className="h-6 rounded-md border-sky-200 bg-sky-50 px-2 text-[11px] font-medium text-sky-800 dark:border-sky-400/30 dark:bg-sky-400/15 dark:text-sky-200"
         >
           Có HĐ sắp hiệu lực
         </Badge>

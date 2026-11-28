@@ -332,14 +332,14 @@ function RoomFormDialogContent({
           </div>
 
           {isEdit && (
-            <div className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-3.5">
+            <div className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-3.5 dark:border-amber-400/30 dark:bg-amber-400/10">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <Label
                     htmlFor="room-maintenance"
                     className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
                   >
-                    <Wrench className="size-4 text-amber-700" />
+                    <Wrench className="size-4 text-amber-700 dark:text-amber-300" />
                     Trạng thái bảo trì
                   </Label>
                   <p className="text-xs text-muted-foreground">
@@ -361,7 +361,7 @@ function RoomFormDialogContent({
               </div>
 
               {hasOpenContract && (
-                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-amber-800">
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-amber-800 dark:text-amber-200">
                   <Info className="size-3.5 shrink-0" />
                   Phòng đang có hợp đồng hiệu lực hoặc sắp hiệu lực, hệ thống sẽ chặn nếu đặt bảo trì.
                 </p>

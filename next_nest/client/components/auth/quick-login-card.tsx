@@ -3,6 +3,7 @@
 import { Building2, LogIn } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { PasswordInput } from "@/components/password-input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -61,9 +62,8 @@ export function QuickLoginCard() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="login-password">Mật khẩu</Label>
-          <Input
+          <PasswordInput
             id="login-password"
-            type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

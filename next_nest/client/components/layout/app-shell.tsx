@@ -30,6 +30,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { useLogout } from "@/hooks/use-auth"
 import { canViewRooms, formatPrimaryRole, type User } from "@/lib/types/auth"
 import { getOccupantVisibility } from "@/lib/types/occupants"
@@ -202,14 +203,17 @@ export function AppShell({ user, breadcrumbs, children }: { user: User; breadcru
             </Breadcrumb>
           </div>
 
-          <div className="flex items-center gap-2.5" title={`${user.fullName} (${roleLabel})`}>
-            <div className="hidden text-right sm:block">
-              <p className="text-xs leading-none font-medium">{user.fullName}</p>
-              <p className="mt-1 text-[11px] leading-none text-muted-foreground">@{user.username}</p>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <div className="flex items-center gap-2.5" title={`${user.fullName} (${roleLabel})`}>
+              <div className="hidden text-right sm:block">
+                <p className="text-xs leading-none font-medium">{user.fullName}</p>
+                <p className="mt-1 text-[11px] leading-none text-muted-foreground">@{user.username}</p>
+              </div>
+              <Avatar className="size-8">
+                <AvatarFallback className="bg-primary text-xs font-medium text-primary-foreground">{initials}</AvatarFallback>
+              </Avatar>
             </div>
-            <Avatar className="size-8">
-              <AvatarFallback className="bg-primary text-xs font-medium text-primary-foreground">{initials}</AvatarFallback>
-            </Avatar>
           </div>
         </header>
 
