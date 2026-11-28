@@ -10,6 +10,8 @@ export type ApiErrorBody = {
   }
 }
 
+export type ApiData<T> = { data: T }
+
 export type Paginated<T> = {
   data: T[]
   meta: { page: number; pageSize: number; totalItems: number; totalPages: number; [key: string]: unknown }
@@ -55,4 +57,15 @@ export function errorMessage(error: unknown, fallback = "Hệ thống gặp lỗ
 
 export function errorCode(error: unknown) {
   return axios.isAxiosError<ApiErrorBody>(error) ? error.response?.data?.error?.code : undefined
+}
+
+export function errorStatus(error: unknown) {
+  return axios.isAxiosError(error) ? error.response?.status : undefined
+}
+
+/** Lỗi theo từng trường của dữ liệu vào (VALIDATION_ERROR). */
+export function fieldErrors(error: unknown): { field: string; message: string }[] {
+  if (!axios.isAxiosError<ApiErrorBody>(error)) return []
+  const details = error.response?.data?.error?.details ?? []
+  return details.flatMap((d) => (d.field ? [{ field: d.field, message: d.message }] : []))
 }

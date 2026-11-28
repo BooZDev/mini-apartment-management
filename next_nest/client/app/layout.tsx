@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "BlueMoon",
+  title: { default: "BlueMoon", template: "%s | BlueMoon" },
   description: "Phần mềm quản lý chung cư mini cho thuê",
 }
 
