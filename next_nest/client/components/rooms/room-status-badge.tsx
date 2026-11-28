@@ -3,8 +3,8 @@ import { ROOM_STATUS_LABELS, type RoomStatus } from "@/lib/types/room"
 import { cn } from "@/lib/utils"
 
 const STATUS_STYLES: Record<RoomStatus, string> = {
-  OCCUPIED: "border-emerald-200 bg-emerald-100/90 text-emerald-900",
-  VACANT: "border-slate-200 bg-slate-100 text-slate-700",
+  OCCUPIED: "border-primary/20 bg-secondary text-primary",
+  VACANT: "border-border bg-card text-muted-foreground",
   MAINTENANCE: "border-amber-200 bg-amber-100 text-amber-900",
 }
 

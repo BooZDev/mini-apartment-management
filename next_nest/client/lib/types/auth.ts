@@ -1,6 +1,6 @@
 export type Role = "SYSTEM_ADMIN" | "OWNER" | "MANAGER" | "ACCOUNTANT" | "TENANT"
 
-export type UserStatus = "ACTIVE" | "LOCKED" | "READ_ONLY"
+export type UserStatus = "ACTIVE" | "READ_ONLY" | "LOCKED"
 
 export type TenantInfo = {
   roomId: string
@@ -10,7 +10,8 @@ export type TenantInfo = {
   readOnlyUntil: string | null
 }
 
-export type CurrentUserProfile = {
+/** User của AUTH-01, AUTH-03. */
+export type User = {
   id: string
   username: string
   fullName: string
@@ -27,26 +28,24 @@ export type CurrentUserProfile = {
 export const ROLE_LABELS: Record<Role, string> = {
   SYSTEM_ADMIN: "Quản trị hệ thống",
   OWNER: "Chủ nhà",
-  MANAGER: "Quản lý vận hành",
+  MANAGER: "Quản lý",
   ACCOUNTANT: "Kế toán",
   TENANT: "Người thuê",
 }
 
-const ROOM_VIEW_ROLES: Role[] = ["MANAGER", "OWNER", "ACCOUNTANT"]
-
-export function canViewRooms(roles: Role[] | undefined): boolean {
-  if (!roles?.length) return false
-  return roles.some((role) => ROOM_VIEW_ROLES.includes(role))
+export function hasAnyRole(roles: Role[] | undefined, allowed: Role[]): boolean {
+  return Boolean(roles?.some((role) => allowed.includes(role)))
 }
 
-export function canManageRooms(roles: Role[] | undefined): boolean {
-  if (!roles?.length) return false
-  return roles.includes("MANAGER")
-}
+// ROOM-01, ROOM-03
+export const canViewRooms = (roles?: Role[]) => hasAnyRole(roles, ["MANAGER", "OWNER", "ACCOUNTANT"])
 
+// ROOM-02, ROOM-04
+export const canManageRooms = (roles?: Role[]) => hasAnyRole(roles, ["MANAGER"])
+
+/** Vai trò hiển thị dưới tên người dùng; tài khoản nhiều vai trò lấy vai trò vận hành chính. */
 export function formatPrimaryRole(roles: Role[] | undefined): string {
-  if (!roles?.length) return "Người dùng"
   const priority: Role[] = ["MANAGER", "OWNER", "ACCOUNTANT", "SYSTEM_ADMIN", "TENANT"]
-  const primary = priority.find((r) => roles.includes(r)) ?? roles[0]
-  return ROLE_LABELS[primary] ?? primary
+  const primary = priority.find((role) => roles?.includes(role))
+  return primary ? ROLE_LABELS[primary] : "Người dùng"
 }

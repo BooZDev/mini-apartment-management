@@ -1,34 +1,28 @@
-import { api, type Paginated } from "@/lib/api"
+import { api, type ApiData, type Paginated } from "@/lib/api"
 import type { CreateRoomPayload, Room, RoomsQueryParams, UpdateRoomPayload } from "@/lib/types/room"
 
-type ApiEnvelope<T> = {
-  data: T
-}
-
+// ROOM-01
 export async function getRooms(params: RoomsQueryParams = {}): Promise<Paginated<Room>> {
-  const query: Record<string, string | number> = {}
-  if (params.q && params.q.trim() !== "") query.q = params.q.trim()
-  if (params.floor !== undefined) query.floor = params.floor
-  if (params.status) query.status = params.status
-  if (params.page) query.page = params.page
-  if (params.pageSize) query.pageSize = params.pageSize
-  if (params.sort) query.sort = params.sort
-
-  const res = await api.get<Paginated<Room>>("/rooms", { params: query })
+  const res = await api.get<Paginated<Room>>("/rooms", {
+    params: { ...params, q: params.q?.trim() || undefined },
+  })
   return res.data
 }
 
+// ROOM-03
 export async function getRoom(roomId: string): Promise<Room> {
-  const res = await api.get<ApiEnvelope<Room>>(`/rooms/${roomId}`)
+  const res = await api.get<ApiData<Room>>(`/rooms/${roomId}`)
   return res.data.data
 }
 
+// ROOM-02
 export async function createRoom(payload: CreateRoomPayload): Promise<Room> {
-  const res = await api.post<ApiEnvelope<Room>>("/rooms", payload)
+  const res = await api.post<ApiData<Room>>("/rooms", payload)
   return res.data.data
 }
 
+// ROOM-04: chỉ gửi trường cần đổi, không gửi `status`
 export async function updateRoom(roomId: string, payload: UpdateRoomPayload): Promise<Room> {
-  const res = await api.patch<ApiEnvelope<Room>>(`/rooms/${roomId}`, payload)
+  const res = await api.patch<ApiData<Room>>(`/rooms/${roomId}`, payload)
   return res.data.data
 }

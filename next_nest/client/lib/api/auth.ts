@@ -1,24 +1,19 @@
-import { api } from "@/lib/api"
-import type { CurrentUserProfile } from "@/lib/types/auth"
+import { api, type ApiData } from "@/lib/api"
+import type { User } from "@/lib/types/auth"
 
-type ApiEnvelope<T> = {
-  data: T
-}
-
-export async function getMe(): Promise<CurrentUserProfile> {
-  const res = await api.get<ApiEnvelope<CurrentUserProfile>>("/auth/me")
+// AUTH-03
+export async function getMe(): Promise<User> {
+  const res = await api.get<ApiData<User>>("/auth/me")
   return res.data.data
 }
 
-export async function login(payload: { username: string; password: string }): Promise<CurrentUserProfile> {
-  const res = await api.post<ApiEnvelope<{ user: CurrentUserProfile } | CurrentUserProfile>>("/auth/login", payload)
-  const body = res.data.data
-  if (body && typeof body === "object" && "user" in body) {
-    return body.user
-  }
-  return body
+// AUTH-01
+export async function login(payload: { username: string; password: string }): Promise<User> {
+  const res = await api.post<ApiData<User>>("/auth/login", payload)
+  return res.data.data
 }
 
+// AUTH-02
 export async function logout(): Promise<void> {
   await api.post("/auth/logout")
 }

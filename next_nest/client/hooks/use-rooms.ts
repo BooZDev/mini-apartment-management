@@ -31,20 +31,17 @@ export function useCreateRoom() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateRoomPayload) => createRoom(payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: roomKeys.all })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: roomKeys.all }),
   })
 }
 
 export function useUpdateRoom() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ roomId, payload }: { roomId: string; payload: UpdateRoomPayload }) =>
-      updateRoom(roomId, payload),
-    onSuccess: async (updatedRoom) => {
-      queryClient.setQueryData(roomKeys.detail(updatedRoom.id), updatedRoom)
-      await queryClient.invalidateQueries({ queryKey: roomKeys.all })
+    mutationFn: ({ roomId, payload }: { roomId: string; payload: UpdateRoomPayload }) => updateRoom(roomId, payload),
+    onSuccess: (room) => {
+      queryClient.setQueryData(roomKeys.detail(room.id), room)
+      return queryClient.invalidateQueries({ queryKey: roomKeys.all })
     },
   })
 }

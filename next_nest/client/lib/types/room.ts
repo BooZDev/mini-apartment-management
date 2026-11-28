@@ -1,6 +1,6 @@
 export type RoomStatus = "VACANT" | "OCCUPIED" | "MAINTENANCE"
 
-export type ContractSummary = {
+export type RoomContractSummary = {
   id: string
   primaryTenantName: string | null
   startDate: string | null
@@ -16,8 +16,8 @@ export type Room = {
   status: RoomStatus
   isUnderMaintenance: boolean
   note: string | null
-  activeContract: ContractSummary | null
-  upcomingContract: ContractSummary | null
+  activeContract: RoomContractSummary | null
+  upcomingContract: RoomContractSummary | null
   occupantCount: number
   createdAt: string
   updatedAt: string
@@ -42,20 +42,9 @@ export type CreateRoomPayload = {
   note?: string | null
 }
 
-export type UpdateRoomPayload = {
-  code?: string
-  floor?: number
-  areaM2?: number
-  listedPrice?: number
-  note?: string | null
+export type UpdateRoomPayload = Partial<CreateRoomPayload> & {
   isUnderMaintenance?: boolean
 }
-
-export const ROOM_STATUS_OPTIONS: { value: RoomStatus; label: string }[] = [
-  { value: "VACANT", label: "Còn trống" },
-  { value: "OCCUPIED", label: "Đang thuê" },
-  { value: "MAINTENANCE", label: "Đang bảo trì" },
-]
 
 export const ROOM_STATUS_LABELS: Record<RoomStatus, string> = {
   VACANT: "Còn trống",
@@ -63,19 +52,7 @@ export const ROOM_STATUS_LABELS: Record<RoomStatus, string> = {
   MAINTENANCE: "Đang bảo trì",
 }
 
-const vndFormatter = new Intl.NumberFormat("vi-VN")
-
-export function formatVnd(amount: number): string {
-  return `${vndFormatter.format(amount)} ₫`
-}
-
-export function formatArea(areaM2: number): string {
-  return `${Number(areaM2).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} m²`
-}
-
-export function formatVnDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return "—"
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr)
-  if (!match) return dateStr
-  return `${match[3]}/${match[2]}/${match[1]}`
-}
+export const ROOM_STATUS_OPTIONS = (Object.keys(ROOM_STATUS_LABELS) as RoomStatus[]).map((value) => ({
+  value,
+  label: ROOM_STATUS_LABELS[value],
+}))

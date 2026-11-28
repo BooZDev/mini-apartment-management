@@ -22,7 +22,8 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useCreateRoom, useUpdateRoom } from "@/hooks/use-rooms"
 import { errorCode, errorMessage, type ApiErrorBody } from "@/lib/api"
-import { formatVnd, type Room, type UpdateRoomPayload } from "@/lib/types/room"
+import { formatVnd } from "@/lib/format"
+import type { Room, UpdateRoomPayload } from "@/lib/types/room"
 import {
   ROOM_VALIDATION_SUMMARY,
   roomFormSchema,
@@ -177,7 +178,7 @@ function RoomFormDialogContent({
       return
     }
 
-    // ROOM-04: chỉ gửi trường thay đổi, tuyệt đối không gửi `status`
+    // ROOM-04: chỉ gửi trường đã đổi, không gửi `status`
     const payload: UpdateRoomPayload = {}
     if (values.code !== room.code) payload.code = values.code
     if (floor !== room.floor) payload.floor = floor
@@ -214,13 +215,13 @@ function RoomFormDialogContent({
   return (
     <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900">
+          <DialogTitle className="text-lg font-bold text-foreground">
             {isEdit ? `Cập nhật phòng ${room.code}` : "Thêm phòng mới"}
           </DialogTitle>
           <DialogDescription>
             {isEdit
               ? "Cập nhật thông tin phòng hoặc trạng thái bảo trì. Giá niêm yết mới chỉ áp dụng làm mặc định cho hợp đồng mới."
-              : "Nhập thông tin phòng mới. Phòng sau khi tạo sẽ mặc định ở trạng thái Còn trống (VACANT)."}
+              : "Nhập thông tin phòng mới. Phòng mới tạo ở trạng thái Còn trống."}
           </DialogDescription>
         </DialogHeader>
 
@@ -235,10 +236,10 @@ function RoomFormDialogContent({
 
         <form noValidate onSubmit={handleSubmit(onValidSubmit, onInvalidSubmit)} className="space-y-4">
           {isEdit && (
-            <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/80 px-3.5 py-2.5">
+            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/50 px-3.5 py-2.5">
               <div>
-                <p className="text-xs font-medium text-slate-500">Trạng thái hiện tại</p>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs font-medium text-muted-foreground">Trạng thái hiện tại</p>
+                <p className="text-[11px] text-muted-foreground">
                   Trống / Đang thuê do hợp đồng quyết định, không chỉnh sửa trực tiếp.
                 </p>
               </div>
@@ -252,7 +253,7 @@ function RoomFormDialogContent({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="room-code">
-                Mã phòng <span className="text-red-600">*</span>
+                Mã phòng <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="room-code"
@@ -261,11 +262,11 @@ function RoomFormDialogContent({
                 {...register("code")}
               />
               {errors.code ? (
-                <p className="text-xs text-red-600">{errors.code.message}</p>
+                <p className="text-xs text-destructive">{errors.code.message}</p>
               ) : (
-                <p className="text-[11px] text-slate-500">
-                  {isEdit && hasOpenContract
-                    ? "Không đổi được mã khi phòng đã có hợp đồng."
+                <p className="text-[11px] text-muted-foreground">
+                  {isEdit
+                    ? "Chỉ đổi được khi phòng chưa từng có hợp đồng."
                     : "Chữ không dấu, số, gạch ngang (tự viết hoa)."}
                 </p>
               )}
@@ -273,7 +274,7 @@ function RoomFormDialogContent({
 
             <div className="space-y-1.5">
               <Label htmlFor="room-floor">
-                Tầng <span className="text-red-600">*</span>
+                Tầng <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="room-floor"
@@ -282,12 +283,12 @@ function RoomFormDialogContent({
                 aria-invalid={Boolean(errors.floor)}
                 {...register("floor")}
               />
-              {errors.floor && <p className="text-xs text-red-600">{errors.floor.message}</p>}
+              {errors.floor && <p className="text-xs text-destructive">{errors.floor.message}</p>}
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="room-area">
-                Diện tích (m²) <span className="text-red-600">*</span>
+                Diện tích (m²) <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="room-area"
@@ -296,12 +297,12 @@ function RoomFormDialogContent({
                 aria-invalid={Boolean(errors.areaM2)}
                 {...register("areaM2")}
               />
-              {errors.areaM2 && <p className="text-xs text-red-600">{errors.areaM2.message}</p>}
+              {errors.areaM2 && <p className="text-xs text-destructive">{errors.areaM2.message}</p>}
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="room-price">
-                Giá niêm yết (đ/tháng) <span className="text-red-600">*</span>
+                Giá niêm yết (đ/tháng) <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="room-price"
@@ -311,9 +312,9 @@ function RoomFormDialogContent({
                 {...register("listedPrice")}
               />
               {errors.listedPrice ? (
-                <p className="text-xs text-red-600">{errors.listedPrice.message}</p>
+                <p className="text-xs text-destructive">{errors.listedPrice.message}</p>
               ) : parsedPricePreview ? (
-                <p className="text-[11px] font-medium text-emerald-800">{parsedPricePreview} / tháng</p>
+                <p className="text-[11px] font-medium text-primary">{parsedPricePreview} / tháng</p>
               ) : null}
             </div>
           </div>
@@ -327,7 +328,7 @@ function RoomFormDialogContent({
               aria-invalid={Boolean(errors.note)}
               {...register("note")}
             />
-            {errors.note && <p className="text-xs text-red-600">{errors.note.message}</p>}
+            {errors.note && <p className="text-xs text-destructive">{errors.note.message}</p>}
           </div>
 
           {isEdit && (
@@ -336,12 +337,12 @@ function RoomFormDialogContent({
                 <div className="space-y-1">
                   <Label
                     htmlFor="room-maintenance"
-                    className="flex items-center gap-1.5 text-sm font-semibold text-slate-900"
+                    className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
                   >
                     <Wrench className="size-4 text-amber-700" />
                     Trạng thái bảo trì
                   </Label>
-                  <p className="text-xs text-slate-600">
+                  <p className="text-xs text-muted-foreground">
                     Bật để chuyển phòng sang <strong>Đang bảo trì</strong>, tắt để đưa phòng về{" "}
                     <strong>Còn trống</strong>.
                   </p>
@@ -380,7 +381,6 @@ function RoomFormDialogContent({
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-[#124e3b] text-white hover:bg-[#0e3d2e]"
             >
               {isPending ? "Đang lưu..." : isEdit ? "Lưu thay đổi" : "Thêm phòng"}
             </Button>
